@@ -31,6 +31,26 @@
 4. `main`へのマージを契機に、Vercelが自動的にProduction Deploymentを実行する（`deployment.md`参照）。
 5. 必要なデータベースマイグレーションは、マージ前後の適切なタイミングで開発者が手動適用する（`deployment.md`の「Database Migration」参照）。
 
+## Branch Protection
+GitHubのBranch Protection（Ruleset）で`main`・`develop`に以下を設定する。
+- 直接pushの禁止（Pull Request必須）。force push・ブランチ削除の禁止。
+- マージ方法はSquash Mergeのみ許可。マージ後、作業ブランチは自動削除する。
+- 必須ステータスチェック: CI（下記）の成功。
+- 必須承認数: 0（開発者が1名の間の暫定。複数名体制になった時点で1以上に見直す）。
+- 既定ブランチは`develop`とする。
+
+## CI
+- GitHub Actionsで、`develop`・`main`宛のPull Requestに対し、`.claude/rules/testing.md`に従い以下を実行する。
+  - lint
+  - type check
+  - test
+- パッケージマネージャはnpmを使用する。
+- 実行対象は`apps/web`とする。
+
+## Issue / PR Templates
+- PRテンプレート: `.github/pull_request_template.md`
+- Issueテンプレート: `.github/ISSUE_TEMPLATE/`（機能要望・バグ報告）
+
 ## Hotfix
 - 本番環境で緊急の修正が必要な場合、`main`から`fix/<概要>`ブランチを作成し、修正後`main`へPull Requestでマージする。
 - マージ後、`develop`にも同内容を反映し、ブランチ間の差分が生じないようにする。
