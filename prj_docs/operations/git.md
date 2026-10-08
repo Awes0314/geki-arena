@@ -11,6 +11,39 @@
 - `fix/<概要>`: 既存機能の不具合修正
 - `chore/<概要>`: ドキュメント更新等、機能に直接影響しない変更
 
+## Daily Workflow（作業ブランチ → develop）
+開発者本人が行う手順。GitHub CLI（`gh`）は未導入のため、PR作成・マージはGitHub Web画面で行う。
+
+1. 最新化とブランチ作成
+   ```powershell
+   git switch develop
+   git pull
+   git switch -c feature/<概要>
+   ```
+2. 実装・コミット（Conventional Commits）
+   ```powershell
+   git add <対象>
+   git commit -m "feat: ○○を追加"
+   ```
+3. push前にローカル検証（`apps/web`で実行）
+   ```powershell
+   npm run lint; npm run typecheck; npm test --if-present
+   ```
+4. push
+   ```powershell
+   git push -u origin feature/<概要>
+   ```
+   push後、VS CodeのGitHub Pull Requests拡張、またはGitHubのリポジトリ画面に表示される「Compare & pull request」からPRを作成する。
+5. PR作成: base=`develop`、compare=作業ブランチ。`.github/pull_request_template.md`を記入する。
+6. CI（lint / type check / test）の成功を確認し、「Squash and merge」でマージする。作業ブランチはマージ後に削除する（自動削除未設定の場合は「Delete branch」を押す）。
+7. ローカルの後始末
+   ```powershell
+   git switch develop
+   git pull
+   git fetch --prune
+   git branch -d feature/<概要>
+   ```
+
 ## Commit Convention
 - Conventional Commits（`feat:`, `fix:`, `docs:`, `chore:`, `refactor:`, `test:`等）に従う（`.claude/rules/git.md`参照）。
 - 1コミットは意味のある単位に留め、無関係な変更を混在させない。
@@ -46,6 +79,7 @@ GitHubのBranch Protection（Ruleset）で`main`・`develop`に以下を設定�
   - test
 - パッケージマネージャはnpmを使用する。
 - 実行対象は`apps/web`とする。
+- `lint`・`typecheck`は`package.json`のscriptsとして定義済み。`test`は未定義のため現状は`--if-present`でスキップされる（Jest導入時にscriptsへ追加する）。
 
 ## Issue / PR Templates
 - PRテンプレート: `.github/pull_request_template.md`
