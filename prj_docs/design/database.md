@@ -257,7 +257,9 @@
 
 ## Triggers
 - 各テーブルの`updated_at`自動更新トリガー（共通関数`set_updated_at()`）。
-- `score_submissions`挿入時、`validation_status`・`total_score`を確定した上で、`update_applied=true`の場合に限り`competition_participants.best_submission_id` / `one_v_one_matches.creator_submission_id`or`opponent_submission_id` / `course_challenge_results.latest_submission_id`を更新するトリガー、またはアプリケーション層での同一トランザクション処理のいずれかを実装時に選定する。
+- スコア提出に伴う関連レコードの更新はDBトリガーでは行わず、アプリケーション層で行う。
+  - `score_submissions`・`song_scores`の登録時に、`validation_status`・`total_score`を確定した上で、`update_applied=true`の場合に限り`competition_participants.best_submission_id` / `one_v_one_matches.creator_submission_id`or`opponent_submission_id` / `course_challenge_results.latest_submission_id`を同一トランザクション内で更新する。
+  - これらの書き込みはService Roleクライアントで行う（RLSに`score_submissions`・`song_scores`の書き込みポリシーは設けない）。
 
 ## Functions
 - `set_updated_at()`: 共通の`updated_at`更新関数。
