@@ -861,7 +861,7 @@ export type Database = {
           status?: string
           updated_at?: string
           user_id: string
-          user_no?: never
+          user_no?: number
         }
         Update: {
           bio?: string | null
@@ -878,7 +878,7 @@ export type Database = {
           status?: string
           updated_at?: string
           user_id?: string
-          user_no?: never
+          user_no?: number
         }
         Relationships: [
           {
