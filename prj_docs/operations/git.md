@@ -12,7 +12,7 @@
 - `chore/<概要>`: ドキュメント更新等、機能に直接影響しない変更
 
 ## Daily Workflow（作業ブランチ → develop）
-開発者本人が行う手順。GitHub CLI（`gh`）は未導入のため、PR作成・マージはGitHub Web画面で行う。
+開発者本人が行う手順。GitHub CLI（`gh`）は導入済みで、PR作成は`gh pr create`で行える。マージはGitHub Web画面で開発者が手動で行う。
 
 1. 最新化とブランチ作成
    ```powershell
@@ -33,7 +33,7 @@
    ```powershell
    git push -u origin feature/<概要>
    ```
-   push後、VS CodeのGitHub Pull Requests拡張、またはGitHubのリポジトリ画面に表示される「Compare & pull request」からPRを作成する。
+   push後、`gh pr create --base develop`（`--body-file`でテンプレートに沿った本文を指定）、VS CodeのGitHub Pull Requests拡張、またはGitHubのリポジトリ画面の「Compare & pull request」からPRを作成する。
 5. PR作成: base=`develop`、compare=作業ブランチ。`.github/pull_request_template.md`を記入する。
 6. CI（lint / type check / test）の成功を確認し、「Squash and merge」でマージする。作業ブランチはマージ後に削除する（自動削除未設定の場合は「Delete branch」を押す）。
 7. ローカルの後始末

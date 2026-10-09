@@ -8,6 +8,13 @@
 - `main`以外のブランチへのpush、またはPull Requestの作成・更新を契機に、VercelがPreview Deploymentを自動作成する。
 - 接続先はDevelopment用Supabaseプロジェクトとする。
 
+### Vercelプロジェクト設定
+- GitHubリポジトリをVercelにImportする。Framework Presetは Next.js。
+- Root Directoryは`apps/web`とする（モノレポ構成のため）。
+- Production Branchは`main`とする。
+- 環境変数（`environments.md`参照）は、Preview（および Development）にDevelopment用Supabaseの値を、Productionに本番用の値を設定する。
+- Supabaseのマイグレーションは、Preview確認の前にDevelopment用プロジェクトへ適用しておく。
+
 ## Staging Deployment
 - 当面構築しない（`environments.md`の「Staging」参照）。
 

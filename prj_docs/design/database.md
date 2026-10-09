@@ -12,18 +12,18 @@
 | カラム | 型 | 制約 | 説明 |
 |---|---|---|---|
 | id | uuid | PK, references auth.users(id) | Supabase Auth発行のユーザーID |
-| user_no | bigint | UNIQUE NOT NULL, 自動採番 | ユーザーNo（不変） |
-| user_id | text | UNIQUE NOT NULL | ログインID |
-| display_name | text | NOT NULL | 表示名 |
-| icon_url | text | NULL可 | アイコン画像URL |
-| bio | text | NULL可 | 自己紹介 |
-| sns_links | jsonb | NOT NULL DEFAULT '[]' | 外部SNSリンク一覧 |
+| user_no | bigint | UNIQUE NOT NULL, CHECK (10000〜99999), 自動採番（`generate_user_no()`によるランダムかつ一意な値） | ユーザーNo（不変） |
+| user_id | text | UNIQUE NOT NULL | ログインID（`a-z0-9_`の3〜20文字、小文字に正規化して保存） |
+| display_name | text | NOT NULL | 表示名（1〜20文字。登録時はuser_idを初期値とする） |
+| icon_url | text | NULL可 | アイコン画像の公開URL（Supabase Storageの`avatars`バケット。「Storage」参照） |
+| bio | text | NULL可 | 自己紹介（最大500文字） |
+| sns_links | jsonb | NOT NULL DEFAULT '[]' | 外部SNSリンク一覧。`[{"type": "x"\|"discord"\|"other", "value": string}]`（typeごとに最大1件。x/discordはユーザー名、otherはhttpsのURL。`user.md`参照） |
 | rating_class_id | smallint | FK -> rating_classes(id), NULL可 | Rating区分 |
 | displayed_badge_id | uuid | FK -> course_badges(id), NULL可 | 表示中のコースバッジ（1件のみ） |
 | role | text | NOT NULL DEFAULT 'general', CHECK IN ('general','admin') | 権限ロール |
 | status | text | NOT NULL DEFAULT 'active', CHECK IN ('active','suspended','deleted') | アカウント状態 |
 | settings | jsonb | NOT NULL DEFAULT '{}' | 通知/表示/アカウント/UI設定 |
-| recovery_code_hash | text | NOT NULL | パスワード再設定用リカバリーコードのハッシュ |
+| recovery_code_hash | text | NOT NULL | パスワード再設定用リカバリーコードのSHA-256ハッシュ（一般クライアントから参照不可） |
 | created_at | timestamptz | NOT NULL DEFAULT now() | |
 | updated_at | timestamptz | NOT NULL DEFAULT now() | |
 
@@ -253,7 +253,13 @@
   - 参照系: 原則として認証済みユーザーであれば参照可能とし、`score_visibility`（`score.md`参照）に該当する詳細スコア属性（`song_scores`の内訳列）は、`submitter_id = auth.uid()`または`role = admin`のユーザーのみ参照可能とするビュー/ポリシーを設ける。
   - 更新系: 自身が所有する行（`organizer_id`, `submitter_id`, `user_id`等が`auth.uid()`と一致）のみ更新可能とし、運営操作（オーバーライド含む）はService Roleで実施する。
   - `operation_logs`, `rating_classes`: 一般ユーザーからの書き込みは不可。`operation_logs`の参照は`role = admin`のみ許可する。
+  - `users`: 一般ユーザーには列単位で権限を与える。`recovery_code_hash`は参照不可。自身の行の更新可能列は`display_name`, `icon_url`, `bio`, `sns_links`, `rating_class_id`, `displayed_badge_id`, `settings`のみ。ユーザー登録・パスワード再設定（`recovery_code_hash`の更新）はService Roleで行う。
 - 詳細なポリシー定義（SQL）は実装時にマイグレーションファイルとして作成する。
+
+## Storage
+- `avatars`バケット（公開）: ユーザーのアイコン画像を保存する。ファイルサイズ上限は2MB、許可形式はpng / jpeg / webp。
+- オブジェクトパスは`{auth.uid()}/{uuid}.{ext}`とし、自身のフォルダ配下のみ、ログインユーザーが追加・削除できる（RLS）。参照は公開URLで行う。
+- アップロード時はファイルの先頭バイトから形式を判定し（Content-Typeは信頼しない）、アイコンを差し替えた場合は旧オブジェクトを削除する。
 
 ## Triggers
 - 各テーブルの`updated_at`自動更新トリガー（共通関数`set_updated_at()`）。

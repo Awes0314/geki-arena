@@ -1,9 +1,11 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 
+import { isPublicPath } from "@/lib/auth/public-paths";
+
 import type { Database } from "./database.types";
 
-/** Supabaseセッションを更新し、更新後のCookieを反映したレスポンスを返す。 */
+/** Supabaseセッションを更新し、未ログインで公開パス以外にアクセスした場合はログイン画面へリダイレクトする。 */
 export async function updateSession(request: NextRequest) {
   let response = NextResponse.next({ request });
 
@@ -25,7 +27,19 @@ export async function updateSession(request: NextRequest) {
   );
 
   // トークンの検証と更新のため、createServerClient 直後に必ず呼ぶ。
-  await supabase.auth.getUser();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user && !isPublicPath(request.nextUrl.pathname)) {
+    const loginUrl = request.nextUrl.clone();
+    loginUrl.pathname = "/login";
+    loginUrl.search = "";
+    const redirectResponse = NextResponse.redirect(loginUrl);
+    // トークン更新で発行されたCookieを引き継ぐ
+    response.cookies.getAll().forEach((cookie) => redirectResponse.cookies.set(cookie));
+    return redirectResponse;
+  }
 
   return response;
 }
