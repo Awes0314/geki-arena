@@ -2,7 +2,7 @@
 
 ## Supabase
 - Purpose: データベース（PostgreSQL）、認証（Supabase Auth）。
-- Used Features: Postgres（テーブル/RLS/ビュー/トリガー）、Auth（`design/authentication.md`参照）。
+- Used Features: Postgres（テーブル/RLS/ビュー/トリガー）、Auth（`design/authentication.md`参照）、Storage（アイコン画像、`design/database.md`の「Storage」参照）。
 - Project Separation: 無料枠の制約（プロジェクト数上限2）を踏まえ、Development用・Production用の2プロジェクトを作成する。Staging用プロジェクトは当面作成しない。
 
 ## Vercel

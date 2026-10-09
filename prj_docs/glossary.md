@@ -13,7 +13,7 @@
 
 | 用語 | 英語/システム表記 | 定義 | 出典 |
 |---|---|---|---|
-| ユーザーNo | `userNo` | ユーザーに割り当てられる一意の自動採番ID。変更不可、削除後も再割当てされない。 | authentication.md, entities.md |
+| ユーザーNo | `userNo` | ユーザーに割り当てられる、10000〜99999のランダムかつ一意な自動採番ID。変更不可、削除後も再割当てされない。 | authentication.md, entities.md |
 | ユーザーID | `userId` | ログインに使用する一意の識別子。ユーザー自身が設定する。 | authentication.md |
 | 表示名 | `displayName` | プロフィール上に表示される名称。編集可能。 | user.md |
 | Rating区分 | `RatingClass` | ユーザーが自己申告（手動入力）で設定する区分。外部データとの照合は行わない。大会参加条件・1v1募集範囲の上限/下限指定に使うため、順序を持つ列挙体である。具体的な区分値は運営が定めるマスタデータ。 | user.md, competition.md, one-v-one.md, entities.md |

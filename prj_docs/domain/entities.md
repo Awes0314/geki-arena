@@ -27,7 +27,7 @@
 
 ## User（ユーザー）
 ### 属性
-- userNo: 一意の自動採番ID（不変）
+- userNo: 10000〜99999のランダムかつ一意な自動採番ID（不変）
 - userId: ログインID（一意）
 - passwordHash: パスワードのハッシュ値
 - displayName: 表示名

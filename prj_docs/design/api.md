@@ -10,7 +10,7 @@
 ## Route Structure
 - `POST /api/score-submissions/bookmarklet`: ブックマークレットが取得したプレイ履歴データを受け取り、バリデーション・提出確認データの生成を行う。
 - `POST /api/score-submissions`: ユーザーが確認画面で内容を確定した提出を永続化する。
-- `POST /api/auth/password-reset`: リカバリーコードによるパスワード再設定（`authentication.md`参照）。
+- `POST /api/auth/password-reset`: （未実装。パスワード再設定は現在Server Actionとして実装している。`authentication.md`参照）
 - その他の運営専用操作（`admin.md`参照）は、`/api/admin/**`配下に集約し、`role=admin`のみアクセス可能とする。
 
 ## Request / Response
