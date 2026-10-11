@@ -61,22 +61,22 @@
 ### public.musics（Music）
 | カラム | 型 | 制約 | 説明 |
 |---|---|---|---|
-| id | text | PK | Pongeki由来の楽曲ID |
+| id | text | PK | 楽曲ID（Pongeki譜面IDから難易度・レベルの接尾辞を除いた部分。`design/pongeki-sync.md`参照） |
 | title | text | NOT NULL | 楽曲名 |
-| artist | text | NOT NULL | アーティスト名 |
-| jacket_image_url | text | NULL可 | ジャケット画像URL |
-| genre | text | NULL可 | ジャンル |
 | updated_at | timestamptz | NOT NULL DEFAULT now() | Pongeki連携の最終更新日時 |
 
 ### public.charts（Chart）
 | カラム | 型 | 制約 | 説明 |
 |---|---|---|---|
 | id | uuid | PK DEFAULT gen_random_uuid() | |
+| pongeki_chart_id | text | UNIQUE NOT NULL | Pongeki CHARTS.id（同期時の突合キー） |
 | music_id | text | FK -> musics(id) NOT NULL | |
 | difficulty_type | text | NOT NULL, CHECK IN ('BASIC','ADVANCED','EXPERT','MASTER','LUNATIC') | 難易度種別 |
-| level | text | NOT NULL | レベル表示値（例: "13+"） |
+| level | text | NOT NULL | レベル表示値（例: "13+"、"0"） |
 | chart_constant | numeric(4,1) | NOT NULL | 譜面定数 |
-| UNIQUE(music_id, difficulty_type) | | | 同一楽曲内で難易度重複不可（entities.md不変条件） |
+| jacket_image_url | text | NULL可 | ジャケット画像URL（譜面ごとに異なり得る。オンゲキNETのジャケットURLとの突合に使用） |
+| is_active | boolean | NOT NULL DEFAULT true | Pongekiの`delete_flag = false`に対応。削除済み譜面は物理削除せずfalseとする |
+| UNIQUE(music_id, difficulty_type, level) | | | 同一楽曲内で(難易度, レベル)重複不可（entities.md不変条件） |
 
 ### public.competitions（Competition）
 | カラム | 型 | 制約 | 説明 |
@@ -242,7 +242,7 @@
 - `notifications(recipient_id, is_read, created_at)`: 通知一覧取得用
 
 ## Constraints
-- `charts`: `UNIQUE(music_id, difficulty_type)`（entities.md「同一楽曲内でdifficultyTypeは重複しない」）
+- `charts`: `UNIQUE(music_id, difficulty_type, level)`（entities.md「同一楽曲内で(difficultyType, level)は重複しない」）
 - `competitions`: `CHECK (end_at > start_at)`、`CHECK (end_at - start_at BETWEEN interval '24 hours' AND interval '90 days')`
 - `competition_target_charts`: 大会あたりの課題曲数（1〜10件）はアプリケーション層でバリデーションする（CHECK制約でのCOUNT検証はPostgresの標準機能では困難なため）。
 - 同一organizerの大会開催期間重複チェックは、アプリケーション層（Server Action）で排他的に検証する（`.claude/rules/coding_style.md`の排他制御方針に従う）。

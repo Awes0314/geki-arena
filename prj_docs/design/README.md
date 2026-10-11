@@ -27,5 +27,8 @@ Next.js（App Router）をフロントエンド兼バックエンド（Server Co
 - `./architecture.md`: システム全体のアーキテクチャ
 - `./database.md`: データベース設計（テーブル・制約・RLS等）
 - `./api.md`: API設計
+- `./ongeki-net.md`: オンゲキNETのページ構造とスコア取得ルール
+- `./bookmarklet.md`: ブックマークレットによるスコア提出の設計
+- `./pongeki-sync.md`: Pongekiからの楽曲・譜面マスタ同期の設計
 - `./authentication.md`: 認証設計
 - `./security.md`: セキュリティ設計

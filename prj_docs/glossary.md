@@ -67,8 +67,8 @@
 
 | 用語 | 英語/システム表記 | 定義 | 出典 |
 |---|---|---|---|
-| Pongeki | - | 運営が他システムとして運用する、楽曲・譜面情報の提供元システム。 | musics_charts.md |
-| 楽曲 | `Music` | 楽曲ID・楽曲名・アーティスト名・ジャケット画像URL・ジャンルを保持するエンティティ。 | musics_charts.md |
+| Pongeki | - | 運営が他システムとして運用する、譜面（CHARTS）情報の提供元システム。楽曲単位のデータは持たない。 | musics_charts.md |
+| 楽曲 | `Music` | 楽曲ID・楽曲名を保持するエンティティ。 | musics_charts.md |
 | 譜面 | `Chart` | 楽曲ごとに難易度種別単位で存在する、プレイ対象データ。レベル表示値・譜面定数を保持する。 | musics_charts.md |
 | 難易度種別 | `DifficultyType` | `BASIC` / `ADVANCED` / `EXPERT` / `MASTER` / `LUNATIC`の5種別。 | musics_charts.md |
 | 譜面定数 | `chartConstant` | 譜面ごとに設定される、Rating算出等に用いる定数値。 | musics_charts.md, one-v-one.md |
@@ -80,6 +80,8 @@
 | オンゲキNET | - | オンゲキ公式のプレイ履歴確認サイト（https://ongeki-net.com/ongeki-mobile/）。スコア取得の情報源。 | score.md |
 | プレイ履歴一覧 | playlog list | オンゲキNET上の、直近プレイ履歴へのリンク一覧ページ（最大50件、プレイ日時降順）。 | score.md |
 | プレイ履歴詳細 | playlog detail | オンゲキNET上の、個別プレイの詳細スコア属性を確認できるページ。 | score.md |
+| 受信ページ | `/score-submissions/receive` | ブックマークレットが開く、取得データを受信し提出内容を確認するページ。 | design/bookmarklet.md |
+| 理論値 | - | テクニカルスコアの満点（1,010,000点）。 | domain/ongeki.md |
 | ブックマークレット | bookmarklet | 当システムが提供する、オンゲキNET上で実行しスコアを取得・提出するスクリプト。 | score.md |
 | テクニカルスコア | `technicalScore` | オンゲキのプレイ結果スコア値。 | score.md |
 | 最大コンボ数 | `maxCombo` | プレイ履歴詳細からのみ取得できるスコア属性。 | score.md |

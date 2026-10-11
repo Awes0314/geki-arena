@@ -4,7 +4,8 @@
 ```mermaid
 graph TD
     Client[Browser] -->|HTTPS| NextApp[Next.js App on Vercel]
-    Bookmarklet[ブックマークレット<br/>オンゲキNET上で実行] -->|fetch| RouteHandler[Route Handler<br/>スコア取得/提出API]
+    Bookmarklet[ブックマークレット<br/>オンゲキNET上で実行] -->|fetch| RouteHandler[Route Handler<br/>コース採用楽曲API]
+    Bookmarklet -->|window.open + postMessage| NextApp
     NextApp --> ServerComponent[Server Component]
     NextApp --> ServerAction[Server Action]
     NextApp --> RouteHandler
@@ -22,7 +23,7 @@ graph TD
 ## Backend
 - Server Action: フォーム送信等、ページ内で完結するミューテーション（大会作成、1v1作成、参加、プロフィール編集等）に使用する。
 - Route Handler: 以下の用途に使用する。
-  - ブックマークレットからの外部呼び出しを受けるスコア取得・提出API（`api.md`参照）。
+  - ブックマークレットからの外部呼び出しを受けるコース採用楽曲API（`api.md`参照）。
   - Webhook等、外部からのHTTPリクエストを受ける処理。
 - いずれの場合も、通常のユーザー操作はログインユーザーの権限で動作するSupabaseクライアント（RLS適用）を使用し、運営機能やユーザー登録等の特権操作のみService Roleクライアントを使用する。
 
@@ -45,9 +46,9 @@ graph TD
 ### スコア提出（ブックマークレット経由）
 1. ユーザーがオンゲキNETにログインした状態でブックマークレットを実行する。
 2. ブックマークレットがオンゲキNET上でプレイ履歴（一覧/詳細）を取得する。
-3. ブックマークレットが当システムのRoute Handlerへ取得したデータをPOSTする。
-4. Route Handlerがバリデーション（`score.md`参照）を行い、別タブで開かれるスコア提出確認ページへ受け渡す。
-5. ユーザーが内容を確認し提出を確定すると、Route Handlerまたは Server Actionが`ScoreSubmission`を永続化し、ランキング/コース結果を更新する。
+3. ブックマークレットが当システムの受信ページを別タブで開き、`postMessage`で取得データを渡す。
+4. ユーザーが提出先と内容を確認し提出を確定すると、Server Actionがログイン済みセッションで再検証（`score.md`参照）を行い、`ScoreSubmission`を永続化し、ランキング/コース結果を更新する。
+- 詳細は`./bookmarklet.md`を参照。
 
 ## Authentication Flow
 - Supabase Authを認証基盤として使用する（`./authentication.md`参照）。
