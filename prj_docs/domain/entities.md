@@ -121,11 +121,8 @@
 
 ## Music（楽曲）
 ### 属性
-- musicId: Pongeki由来の識別子
+- musicId: Pongeki由来の譜面IDから導出する識別子
 - title: 楽曲名
-- artist: アーティスト名
-- jacketImageUrl: ジャケット画像URL
-- genre: ジャンル
 
 ### 識別子
 - musicId
@@ -142,12 +139,14 @@
 - difficultyType: `DifficultyType`値オブジェクト（BASIC/ADVANCED/EXPERT/MASTER/LUNATIC）
 - level: レベル表示値
 - chartConstant: 譜面定数
+- jacketImageUrl: ジャケット画像URL（同一楽曲でも譜面ごとに異なり得る）
+- isActive: 有効/無効（Pongekiでの削除に対応）: 有効/無効（Pongekiでの削除に対応）
 
 ### 識別子
 - chartId
 
 ### 不変条件 / ビジネスルール
-- 同一楽曲内でdifficultyTypeは重複しない。
+- 同一楽曲内で(difficultyType, level)は重複しない。（同一難易度でもレベルが異なる譜面が存在し得る）
 
 ### 出典
 - `musics_charts.md`
@@ -339,10 +338,12 @@
 
 ### DifficultyType
 - `BASIC` | `ADVANCED` | `EXPERT` | `MASTER` | `LUNATIC`
+- オンゲキNETの難易度画像（`diff_basic.png`等）から変換する（`design/ongeki-net.md`参照）。
 
 ### SongScore
 - music / difficulty / playDateTime
 - technicalScore / maxCombo / criticalBreak / break / hit / miss / bell / damage
 - jacketImageUrl
-- すべての数値項目は0以上の整数（`score.md`のバリデーションルールに従う）
+- すべての数値項目は0以上の整数（`score.md`のバリデーションルールに従う）。technicalScoreは1,010,000以下（`ongeki.md`参照）。
+- 同一プレイは(提出者, 譜面, playDateTime, technicalScore)で識別する。
 

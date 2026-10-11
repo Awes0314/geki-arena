@@ -3,13 +3,13 @@
 ## API Principles
 - 通常の画面操作（大会作成・参加、プロフィール編集等）は、Next.jsのServer Actionとして実装し、公開HTTP APIとしては提供しない。
 - 以下の用途に限り、Route Handler（`app/api/**/route.ts`）として公開APIを設ける。
-  - ブックマークレットからのスコア取得・提出（外部のブラウザコンテキストから`fetch`で呼び出されるため、Server Actionでは対応できない）。
+  - ブックマークレットからのコース採用楽曲の取得（外部のブラウザコンテキストから`fetch`で呼び出されるため、Server Actionでは対応できない）。
   - 将来的な外部連携・Webhookが必要になった場合。
 - APIは`prj_docs/domain/entities.md`のエンティティ・値オブジェクトを正とし、レスポンス構造を設計する。
 
 ## Route Structure
-- `POST /api/score-submissions/bookmarklet`: ブックマークレットが取得したプレイ履歴データを受け取り、バリデーション・提出確認データの生成を行う。
-- `POST /api/score-submissions`: ユーザーが確認画面で内容を確定した提出を永続化する。
+- `GET /api/courses/songs`: コースに採用されている全楽曲を返す（認証不要、CORSは`https://ongeki-net.com`のみ許可。`bookmarklet.md`参照）。
+- スコア提出の確定は、当システムの受信ページ（`/score-submissions/receive`）からServer Actionとして行う。ブックマークレットは当システムのAPIへ直接データを送信しない（`bookmarklet.md`のData Transfer参照）。
 - `POST /api/auth/password-reset`: （未実装。パスワード再設定は現在Server Actionとして実装している。`authentication.md`参照）
 - その他の運営専用操作（`admin.md`参照）は、`/api/admin/**`配下に集約し、`role=admin`のみアクセス可能とする。
 
