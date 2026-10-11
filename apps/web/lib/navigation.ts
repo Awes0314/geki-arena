@@ -13,6 +13,8 @@ type NavDefinition = {
 const NAV_DEFINITIONS: NavDefinition[] = [
   { label: "ホーム", href: () => "/" },
   { label: "プロフィール", href: (user) => `/users/${user?.userNo}`, visible: (user) => user !== null },
+  { label: "スコア提出", href: () => "/bookmarklet", visible: (user) => user !== null },
+  { label: "運営", href: () => "/admin", visible: (user) => user?.role === "admin" },
 ];
 
 export function getNavItems(user: NavUser | null): NavItem[] {
