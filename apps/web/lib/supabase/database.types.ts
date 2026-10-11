@@ -44,22 +44,31 @@ export type Database = {
           chart_constant: number
           difficulty_type: string
           id: string
+          is_active: boolean
+          jacket_image_url: string | null
           level: string
           music_id: string
+          pongeki_chart_id: string
         }
         Insert: {
           chart_constant: number
           difficulty_type: string
           id?: string
+          is_active?: boolean
+          jacket_image_url?: string | null
           level: string
           music_id: string
+          pongeki_chart_id: string
         }
         Update: {
           chart_constant?: number
           difficulty_type?: string
           id?: string
+          is_active?: boolean
+          jacket_image_url?: string | null
           level?: string
           music_id?: string
+          pongeki_chart_id?: string
         }
         Relationships: [
           {
@@ -402,26 +411,17 @@ export type Database = {
       }
       musics: {
         Row: {
-          artist: string
-          genre: string | null
           id: string
-          jacket_image_url: string | null
           title: string
           updated_at: string
         }
         Insert: {
-          artist: string
-          genre?: string | null
           id: string
-          jacket_image_url?: string | null
           title: string
           updated_at?: string
         }
         Update: {
-          artist?: string
-          genre?: string | null
           id?: string
-          jacket_image_url?: string | null
           title?: string
           updated_at?: string
         }
