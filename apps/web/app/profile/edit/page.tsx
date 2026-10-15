@@ -29,7 +29,7 @@ async function EditContent({ searchParams }: { searchParams: Promise<{ onboardin
         title={onboarding ? "プロフィールを設定" : "プロフィール編集"}
         actions={
           <Link href={onboarding ? "/" : `/users/${user.user_no}`} className={buttonStyles("ghost")}>
-            {onboarding ? "スキップ" : "戻る"}
+            {onboarding ? "スキップ" : "プロフィールへ"}
           </Link>
         }
       />

@@ -1,10 +1,13 @@
 import { createServerClient } from "@supabase/ssr";
 import { cookies } from "next/headers";
+import { connection } from "next/server";
 
 import type { Database } from "./database.types";
 
 /** ログインユーザーの権限（RLS適用）で動作するサーバー用クライアントを返す。 */
 export async function createClient() {
+  // Supabase内部のDate.now()をプリレンダリングで評価させないようリクエスト時実行にする
+  await connection();
   const cookieStore = await cookies();
 
   return createServerClient<Database>(

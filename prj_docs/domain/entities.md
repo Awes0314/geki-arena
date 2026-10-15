@@ -238,7 +238,7 @@
 - courseId
 - chapterNumber: CHAPTER番号（難易度の目安、値が大きいほど高難易度）
 - courseName
-- orderedCharts: Chartへの参照リスト（順序あり、連続プレイが前提）
+- orderedCharts: Chartへの参照リスト（表示順を持つ。連続プレイが前提だがプレイ順は問わない）
 - clearCondition: コースごとに運営が個別設定する合格条件（例: 各譜面のスコア閾値等）
 - rewardBadge: CourseBadgeへの参照
 
@@ -298,7 +298,7 @@
 
 ### 不変条件 / ビジネスルール
 - 提出は対象コンテキストの開催期間内のみ有効（大会・1v1）。
-- continuousPlayRequired=trueの対象では、課題曲全曲の連続プレイ分が必要。
+- continuousPlayRequired=trueの対象では、課題曲全曲の連続プレイ分が必要（プレイ順は問わない）。
 - `score.md`のバリデーションルールを満たさない場合はinvalidとなる。
 - 既存記録より合計スコアが高い場合にのみ、ランキング/ベスト記録が更新される（updateApplied=true）。
 

@@ -22,12 +22,13 @@ export function NavLinks({ items, variant }: NavLinksProps) {
           variant === "bottom"
             ? "flex min-h-14 flex-1 items-center justify-center text-xs font-medium"
             : "inline-flex min-h-11 items-center rounded-lg px-3 text-sm font-medium hover:bg-foreground/5";
+        const color = item.tone === "competition" ? "text-mode-competition" : active ? "text-accent" : "text-foreground";
         return (
           <li key={item.href} className={variant === "bottom" ? "flex-1" : undefined}>
             <Link
               href={item.href}
               aria-current={active ? "page" : undefined}
-              className={`${base} ${active ? "text-accent underline underline-offset-4" : "text-foreground"}`}
+              className={`${base} ${color} ${active ? "underline underline-offset-4" : ""}`}
             >
               {item.label}
             </Link>

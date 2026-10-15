@@ -31,7 +31,7 @@
 | 主催者 | `organizer` | 大会を作成したユーザー。 | competition.md |
 | 課題曲 | `targetCharts` | 大会で提出対象となる譜面（`Chart`）のリスト。1〜10件、重複不可。 | competition.md |
 | 参加条件 | `ParticipationCondition` | 大会参加・1v1募集に設定できる任意の条件。Rating区分の上限/下限（片方または両方）を指定可能。 | competition.md, one-v-one.md |
-| 連続プレイ必須オプション | `continuousPlayRequired` | trueの場合、課題曲全曲の連続プレイでの提出が必須となる設定（boolean、初期値false）。 | competition.md |
+| 連続プレイ必須オプション | `continuousPlayRequired` | trueの場合、課題曲全曲の連続プレイ（プレイ順は問わない）での提出が必須となる設定（boolean、初期値false）。 | competition.md |
 | 開催予定 | `scheduled` | 大会の開始日時が現在日時よりも後である状態。 | competition.md |
 | 開催中 | `ongoing` | 開始日時を過ぎ、終了日時前である状態。 | competition.md |
 | 終了 | `finished` | 終了日時を過ぎた状態。 | competition.md |

@@ -3,6 +3,8 @@ import { cloneElement, isValidElement, useId, type ReactElement, type ReactNode 
 export type FormFieldProps = {
   label: string;
   hint?: string;
+  /** 入力の制限（項目名の下に列挙する） */
+  limits?: string[];
   error?: string;
   required?: boolean;
   /** id・aria属性を受け取れる単一の入力要素 */
@@ -10,7 +12,7 @@ export type FormFieldProps = {
 };
 
 /** ラベル・ヒント・エラーメッセージを入力要素に関連付ける共通ラッパー。 */
-export function FormField({ label, hint, error, required, children }: FormFieldProps) {
+export function FormField({ label, hint, limits, error, required, children }: FormFieldProps) {
   const id = useId();
   const hintId = `${id}-hint`;
   const errorId = `${id}-error`;
@@ -22,6 +24,13 @@ export function FormField({ label, hint, error, required, children }: FormFieldP
         {label}
         {required && <span aria-hidden="true" className="ml-1 text-red-600">*</span>}
       </label>
+      {limits && limits.length > 0 && (
+        <ul className="list-inside list-disc text-xs text-muted">
+          {limits.map((limit) => (
+            <li key={limit}>{limit}</li>
+          ))}
+        </ul>
+      )}
       {isValidElement(children)
         ? cloneElement(children, { id, "aria-describedby": describedBy, "aria-invalid": error ? true : undefined })
         : (children as ReactNode)}
