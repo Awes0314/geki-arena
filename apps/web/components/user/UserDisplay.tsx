@@ -8,7 +8,7 @@ type UserDisplayProps = {
   userNo: number;
   displayName: string;
   iconUrl: string | null;
-  ratingLabel?: string | null;
+  rating?: { label: string; tier: string } | null;
   badge?: { svgUrl: string; courseName: string } | null;
   size?: AvatarSize;
   /** trueでプロフィールへのリンクにする */
@@ -20,7 +20,7 @@ export function UserDisplay({
   userNo,
   displayName,
   iconUrl,
-  ratingLabel,
+  rating,
   badge,
   size = "md",
   linked = true,
@@ -28,8 +28,8 @@ export function UserDisplay({
   const content = (
     <>
       <Avatar src={iconUrl} name={displayName} size={size} />
-      <span className="truncate font-medium">{displayName}</span>
-      {ratingLabel && <RatingBadge label={ratingLabel} />}
+      <span className="truncate font-medium underline underline-offset-2">{displayName}</span>
+      {rating && <RatingBadge label={rating.label} tier={rating.tier} />}
       {badge && <CourseBadge svgUrl={badge.svgUrl} courseName={badge.courseName} size={24} />}
     </>
   );

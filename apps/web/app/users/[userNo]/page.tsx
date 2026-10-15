@@ -3,7 +3,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
 
-import { PageContainer } from "@/components/layout/PageContainer";
+import { PageContainer, PageHeader } from "@/components/layout/PageContainer";
 import { Avatar } from "@/components/ui/Avatar";
 import { buttonStyles } from "@/components/ui/Button";
 import { Card, CardTitle } from "@/components/ui/Card";
@@ -33,10 +33,10 @@ async function ProfileContent({ params }: { params: Promise<{ userNo: string }> 
       <Card className="flex flex-col items-center gap-4 sm:flex-row sm:items-start">
         <Avatar src={profile.iconUrl} name={profile.displayName} size="lg" />
         <div className="flex min-w-0 flex-1 flex-col items-center gap-2 sm:items-start">
-          <h1 className="max-w-full break-words text-2xl font-bold">{profile.displayName}</h1>
+          <h2 className="max-w-full break-words text-2xl font-bold">{profile.displayName}</h2>
           <p className="text-sm text-muted">No. {profile.userNo}</p>
           <div className="flex items-center gap-2">
-            {profile.ratingClass && <RatingBadge label={profile.ratingClass.label} />}
+            {profile.ratingClass && <RatingBadge label={profile.ratingClass.label} tier={profile.ratingClass.tier} />}
             {profile.displayedBadge && (
               <CourseBadge svgUrl={profile.displayedBadge.svgUrl} courseName={profile.displayedBadge.courseName} />
             )}
@@ -74,6 +74,7 @@ async function ProfileContent({ params }: { params: Promise<{ userNo: string }> 
 export default function UserProfilePage({ params }: PageProps<"/users/[userNo]">) {
   return (
     <PageContainer>
+      <PageHeader title="プロフィール" />
       <Suspense fallback={<Card className="h-48 animate-pulse" aria-hidden="true" />}>
         <ProfileContent params={params} />
       </Suspense>

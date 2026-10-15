@@ -3,10 +3,11 @@
 import { useActionState } from "react";
 
 import { Alert } from "@/components/ui/Alert";
-import { SelectInput, TextArea, TextInput } from "@/components/ui/Fields";
+import { TextArea, TextInput } from "@/components/ui/Fields";
 import { SubmitButton } from "@/components/ui/SubmitButton";
 import { CourseBadge } from "@/components/user/CourseBadge";
 import { IconPicker } from "@/components/user/IconPicker";
+import { RatingSelect } from "@/components/user/RatingSelect";
 import { updateProfile } from "@/lib/profile/actions";
 import type { CourseBadgeData, RatingClassData, UserProfile } from "@/lib/profile/queries";
 import { BIO_MAX_LENGTH, DISPLAY_NAME_MAX_LENGTH, SNS_LINK_MAX_LENGTH } from "@/lib/validation/profile";
@@ -44,20 +45,15 @@ export function ProfileEditForm({ profile, ratingClasses, badges, onboarding = f
         error={errors.displayName}
       />
 
-      <SelectInput
+      <RatingSelect
         label="Rating区分"
         name="ratingClassId"
+        options={ratingClasses}
+        emptyLabel="未設定"
         hint="自己申告の値です。外部データとの照合は行われません。"
         defaultValue={values?.ratingClassId ?? String(profile.ratingClassId ?? "")}
         error={errors.ratingClassId}
-      >
-        <option value="">未設定</option>
-        {ratingClasses.map((ratingClass) => (
-          <option key={ratingClass.id} value={ratingClass.id}>
-            {ratingClass.label}
-          </option>
-        ))}
-      </SelectInput>
+      />
 
       {!onboarding && (
         <>

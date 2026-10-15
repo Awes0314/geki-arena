@@ -2,12 +2,7 @@
 -- ログイン: userId = dev_alice / dev_bob / dev_carol、パスワード = password123
 -- 内部メールは {userId}@dev.geki-arena.internal（SUPABASE_AUTH_INTERNAL_EMAIL_DOMAIN と一致させる）
 
--- Rating区分マスタ（実際の区分は運営が確定するため仮の値）
-insert into public.rating_classes (id, code, label, sort_order) values
-  (1, 'class_1', 'Class 1', 1),
-  (2, 'class_2', 'Class 2', 2),
-  (3, 'class_3', 'Class 3', 3)
-on conflict (id) do nothing;
+-- Rating区分マスタはマイグレーション(20261011120000)で登録済み
 
 -- Supabase Auth ユーザー
 insert into auth.users (

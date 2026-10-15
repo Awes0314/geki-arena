@@ -23,9 +23,9 @@ describe("Avatar", () => {
 
 describe("UserDisplay", () => {
   it("プロフィールへのリンクとRating区分を表示する", () => {
-    render(<UserDisplay userNo={12} displayName="alice" iconUrl={null} ratingLabel="Rank A" />);
+    render(<UserDisplay userNo={12} displayName="alice" iconUrl={null} rating={{ label: "21.000～21.249", tier: "rainbow_ex" }} />);
     expect(screen.getByRole("link")).toHaveAttribute("href", "/users/12");
-    expect(screen.getByText("Rank A")).toBeInTheDocument();
+    expect(screen.getByText("21.000～21.249")).toBeInTheDocument();
   });
 });
 

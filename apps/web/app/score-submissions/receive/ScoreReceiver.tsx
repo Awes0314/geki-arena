@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import { Alert } from "@/components/ui/Alert";
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
+import { CompetitionSubmitPanel } from "./CompetitionSubmitPanel";
 import { resolvePlayLevels, type PlayLevels } from "@/lib/score-submission/actions";
 import {
   ONGEKI_NET_ORIGIN,
@@ -79,10 +80,16 @@ export function ScoreReceiver() {
           </ul>
         )}
       </Card>
-      <Alert variant="info">提出先の選択と提出は未実装です。</Alert>
-      <Button variant="primary" disabled>
-        提出する
-      </Button>
+      {payload.mode === "tournament" ? (
+        <CompetitionSubmitPanel payload={payload} />
+      ) : (
+        <>
+          <Alert variant="info">コースへの提出は未実装です。</Alert>
+          <Button variant="primary" disabled>
+            提出する
+          </Button>
+        </>
+      )}
     </div>
   );
 }

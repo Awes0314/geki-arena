@@ -664,18 +664,21 @@ export type Database = {
           id: number
           label: string
           sort_order: number
+          tier: string
         }
         Insert: {
           code: string
           id: number
           label: string
           sort_order: number
+          tier: string
         }
         Update: {
           code?: string
           id?: number
           label?: string
           sort_order?: number
+          tier?: string
         }
         Relationships: []
       }

@@ -1,7 +1,7 @@
 import { createClient } from "@/lib/supabase/server";
 import { parseSnsLinks, type SnsLink } from "@/lib/validation/profile";
 
-export type RatingClassData = { id: number; code: string; label: string };
+export type RatingClassData = { id: number; code: string; label: string; tier: string };
 export type CourseBadgeData = { id: string; svgUrl: string; courseName: string };
 
 export type UserProfile = {
@@ -37,7 +37,7 @@ export async function getProfileByUserNo(userNo: number): Promise<UserProfile | 
     .from("users")
     .select(
       `id, user_no, user_id, display_name, icon_url, bio, sns_links, status, rating_class_id, displayed_badge_id,
-       rating_classes(id, code, label),
+       rating_classes(id, code, label, tier),
        course_badges!users_displayed_badge_id_fkey(${BADGE_SELECT})`,
     )
     .eq("user_no", userNo)
@@ -66,7 +66,7 @@ export async function getRatingClasses(): Promise<RatingClassData[]> {
   const supabase = await createClient();
   const { data, error } = await supabase
     .from("rating_classes")
-    .select("id, code, label")
+    .select("id, code, label, tier")
     .order("sort_order");
   if (error) throw new Error(`failed to fetch rating classes: ${error.message}`);
   return data;

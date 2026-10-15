@@ -17,7 +17,7 @@ export async function Header() {
       <header className="sticky top-0 z-40 border-b border-border bg-surface/90 backdrop-blur">
         <div className="mx-auto flex h-14 w-full max-w-4xl items-center justify-between gap-4 px-4">
           <div className="flex items-center gap-6">
-            <Link href="/" className="text-lg font-bold tracking-tight">
+            <Link href="/" className="neon-text text-lg font-bold tracking-tight">
               Geki Arena
             </Link>
             <nav aria-label="メインナビゲーション" className="hidden md:block">
@@ -41,6 +41,7 @@ export async function Header() {
             </Link>
           )}
         </div>
+        <div className="neon-line" />
       </header>
       <nav
         aria-label="モバイルナビゲーション"

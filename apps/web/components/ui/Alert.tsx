@@ -1,9 +1,10 @@
 import type { ReactNode } from "react";
 
-type AlertVariant = "error" | "success" | "info";
+type AlertVariant = "error" | "success" | "info" | "warning";
 
 const STYLES: Record<AlertVariant, { className: string; icon: string }> = {
   error: { className: "border-red-600/40 bg-red-600/10 text-red-700 dark:text-red-300", icon: "!" },
+  warning: { className: "border-amber-500/50 bg-amber-500/15 text-amber-800 dark:text-amber-300", icon: "!" },
   success: { className: "border-green-600/40 bg-green-600/10 text-green-700 dark:text-green-300", icon: "✓" },
   info: { className: "border-border bg-foreground/5", icon: "i" },
 };

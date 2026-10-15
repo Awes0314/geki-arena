@@ -32,7 +32,8 @@
 |---|---|---|---|
 | id | smallint | PK | |
 | code | text | UNIQUE NOT NULL | 区分コード |
-| label | text | NOT NULL | 表示名（運営が定義） |
+| label | text | NOT NULL | 表示名（運営が定義。例: `21.000～21.249`） |
+| tier | text | NOT NULL, CHECK | 色・アイコンの系統キー（blue, green, orange, red, purple, bronze, silver, gold, platinum, rainbow, rainbow_ex, rainbow_max） |
 | sort_order | smallint | UNIQUE NOT NULL | 大小比較用の順序 |
 
 ### public.reports（Report）
