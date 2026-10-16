@@ -3,9 +3,9 @@
 import { useEffect, useState } from "react";
 
 import { Alert } from "@/components/ui/Alert";
-import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
 import { CompetitionSubmitPanel } from "./CompetitionSubmitPanel";
+import { CourseSubmitPanel } from "./CourseSubmitPanel";
 import { MatchSubmitPanel } from "./MatchSubmitPanel";
 import { SelectInput } from "@/components/ui/Fields";
 import { resolvePlayLevels, type PlayLevels } from "@/lib/score-submission/actions";
@@ -100,12 +100,7 @@ export function ScoreReceiver() {
           )}
         </>
       ) : (
-        <>
-          <Alert variant="info">コースへの提出は未実装です。</Alert>
-          <Button variant="primary" disabled>
-            提出する
-          </Button>
-        </>
+        <CourseSubmitPanel payload={payload} />
       )}
     </div>
   );
