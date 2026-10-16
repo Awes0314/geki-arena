@@ -1,3 +1,4 @@
+import { recordActivity } from "@/lib/logging/activity-log";
 import { createAdminClient } from "@/lib/supabase/admin";
 
 export type SubmissionContextType = "competition" | "one_v_one" | "course";
@@ -46,4 +47,10 @@ export async function insertScoreSubmission(params: {
     await admin.from("score_submissions").delete().eq("id", params.id);
     throw new Error(`failed to insert song scores: ${songError.message}`);
   }
+
+  await recordActivity({
+    eventType: "score_submit",
+    userId: params.submitterId,
+    detail: { submissionId: params.id, contextType: params.contextType, contextId: params.contextId },
+  });
 }

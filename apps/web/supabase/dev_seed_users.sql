@@ -51,9 +51,9 @@ on conflict (id) do nothing;
 -- コース・バッジ・クリア結果（バッジ選択UIの確認用）
 -- courses.reward_badge_id と course_badges.course_id は相互参照のため、同一トランザクションで投入する
 begin;
-  insert into public.courses (id, chapter_number, course_name, clear_condition, reward_badge_id) values
-    ('aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa', 1, 'はじめてのコース', '{}', 'bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb'),
-    ('cccccccc-cccc-4ccc-8ccc-cccccccccccc', 1, 'ステップアップコース', '{}', 'dddddddd-dddd-4ddd-8ddd-dddddddddddd')
+  insert into public.courses (id, chapter, course_name, clear_condition, reward_badge_id) values
+    ('aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa', '1', 'はじめてのコース', '{}', 'bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb'),
+    ('cccccccc-cccc-4ccc-8ccc-cccccccccccc', '1', 'ステップアップコース', '{}', 'dddddddd-dddd-4ddd-8ddd-dddddddddddd')
   on conflict (id) do nothing;
 
   insert into public.course_badges (id, course_id, badge_chapter) values

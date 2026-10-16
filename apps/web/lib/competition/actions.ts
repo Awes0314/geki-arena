@@ -7,6 +7,7 @@ import { fail, failInternal, formDataToValues, ok, type FormState } from "@/lib/
 import { getCurrentUser, type CurrentUser } from "@/lib/auth/current-user";
 import { getCompetitionStatus, type CompetitionStatus } from "@/lib/competition/period";
 import { checkUserRatingCondition, validateRatingRange } from "@/lib/competition/rating-condition";
+import { recordActivity } from "@/lib/logging/activity-log";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
 import { competitionDescriptionSchema, parseCompetitionForm } from "@/lib/validation/competition";
@@ -138,6 +139,7 @@ export async function createCompetition(_prevState: FormState, formData: FormDat
       throw new Error(`failed to insert competition: ${insertError.message}`);
     }
     competitionId = created.id;
+    await recordActivity({ eventType: "competition_create", userId: user.id, detail: { competitionId } });
 
     const { error: targetError } = await admin.from("competition_target_charts").insert(
       input.chartIds.map((chartId, index) => ({

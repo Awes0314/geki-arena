@@ -3,6 +3,7 @@
 import { fail, failInternal, ok, type FormState } from "@/lib/actions/result";
 import { userIdToInternalEmail } from "@/lib/auth/internal-email";
 import { generateRecoveryCode, hashRecoveryCode } from "@/lib/auth/recovery-code";
+import { recordActivity } from "@/lib/logging/activity-log";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
 import { registerSchema } from "@/lib/validation/auth";
@@ -74,6 +75,7 @@ export async function register(
     const supabase = await createClient();
     const { error: signInError } = await supabase.auth.signInWithPassword({ email, password });
     if (signInError) console.error("[register] auto sign-in failed:", signInError.message);
+    await recordActivity({ eventType: "register", userId: authUserId });
 
     return { result: ok({ recoveryCode }), values };
   } catch (cause) {

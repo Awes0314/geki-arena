@@ -7,6 +7,7 @@ import { z } from "zod";
 import { fail, failInternal, formDataToValues, ok, type FormState } from "@/lib/actions/result";
 import { getCurrentUser } from "@/lib/auth/current-user";
 import { checkUserRatingCondition, validateRatingRange } from "@/lib/competition/rating-condition";
+import { recordActivity } from "@/lib/logging/activity-log";
 import { countChartsInRange, isChartSelectable, pickRandomChartId } from "@/lib/one-v-one/charts";
 import { isMusicRangeType, type MusicRange } from "@/lib/one-v-one/music-range";
 import { computeEndAt, getMatchStatus, type StoredMatchStatus } from "@/lib/one-v-one/status";
@@ -86,6 +87,7 @@ export async function createMatch(_prevState: FormState, formData: FormData): Pr
       .single();
     if (insertError) throw new Error(`failed to insert match: ${insertError.message}`);
     matchId = created.id;
+    await recordActivity({ eventType: "one_v_one_create", userId: user.id, detail: { matchId } });
   } catch (cause) {
     return { result: failInternal("createMatch", cause), values };
   }

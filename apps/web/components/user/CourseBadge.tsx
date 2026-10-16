@@ -24,7 +24,7 @@ export function CourseBadge({ badgeChapter, courseName, size = 48 }: CourseBadge
       <polygon points="22,69 50,85 78,69 78,60 50,76 22,60" fill={accent} />
       <text
         x="50"
-        y="51"
+        y="48"
         textAnchor="middle"
         dominantBaseline="central"
         fontSize="34"
