@@ -8,7 +8,7 @@ import { CompetitionFilters } from "@/components/competition/CompetitionFilters"
 import { PageContainer, PageHeader } from "@/components/layout/PageContainer";
 import { buttonStyles } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
-import { RatingBadge } from "@/components/user/RatingBadge";
+import { RatingRangeText } from "@/components/user/RatingRangeText";
 import { UserDisplay } from "@/components/user/UserDisplay";
 import { requireUser } from "@/lib/auth/current-user";
 import { levelToNumber } from "@/lib/competition/level";
@@ -67,15 +67,7 @@ function CompetitionCard({ competition }: { competition: CompetitionListItem }) 
       {competition.description && <p className="line-clamp-2 whitespace-pre-wrap text-sm">{competition.description}</p>}
       <div className="flex flex-wrap items-center gap-2 text-xs">
         <span className="text-muted">参加条件:</span>
-        {ratingMin || ratingMax ? (
-          <>
-            {ratingMin ? <RatingBadge label={ratingMin.label} tier={ratingMin.tier} /> : <span>指定なし</span>}
-            <span>〜</span>
-            {ratingMax ? <RatingBadge label={ratingMax.label} tier={ratingMax.tier} /> : <span>指定なし</span>}
-          </>
-        ) : (
-          <span>制限なし</span>
-        )}
+        <RatingRangeText min={ratingMin} max={ratingMax} />
       </div>
       <span className="inline-flex w-fit items-center rounded-full border border-foreground/40 px-2.5 py-0.5 text-xs font-semibold">
         {competition.continuousPlayRequired ? "全曲通し限定" : "各曲個別提出OK"}

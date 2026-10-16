@@ -6,7 +6,9 @@ import { fail, failInternal, ok, type ActionResult } from "@/lib/actions/result"
 import { getCurrentUser } from "@/lib/auth/current-user";
 import { DIFFICULTY_TYPES } from "@/lib/admin/pongeki-mapping";
 import { CHART_SEARCH_SORTS } from "@/lib/competition/chart-sort";
+import { levelsInRange, MUSIC_RANGE_TYPES } from "@/lib/one-v-one/music-range";
 import { createClient } from "@/lib/supabase/server";
+import { escapeLike } from "@/lib/utils";
 
 export type ChartSearchResult = {
   chartId: string;
@@ -23,6 +25,10 @@ const searchSchema = z.object({
   constantMin: z.number().min(0).max(20).nullable(),
   constantMax: z.number().min(0).max(20).nullable(),
   sort: z.enum(CHART_SEARCH_SORTS),
+  /** 1v1の楽曲範囲など、候補を制限する場合に指定する */
+  range: z
+    .object({ type: z.enum(MUSIC_RANGE_TYPES), min: z.number().min(0).max(20), max: z.number().min(0).max(20) })
+    .nullish(),
 });
 
 export type ChartSearchParams = z.input<typeof searchSchema>;
@@ -30,10 +36,6 @@ export type ChartSearchParams = z.input<typeof searchSchema>;
 const FETCH_LIMIT = 300;
 const RESULT_LIMIT = 20;
 
-/** ilikeのワイルドカード文字をエスケープする。 */
-function escapeLike(value: string): string {
-  return value.replace(/[\\%_]/g, (char) => `\\${char}`);
-}
 
 /** 課題曲選択用に譜面を検索する（楽曲名・難易度・譜面定数で絞り込み、並び替え）。 */
 export async function searchCharts(input: ChartSearchParams): Promise<ActionResult<ChartSearchResult[]>> {
@@ -42,7 +44,12 @@ export async function searchCharts(input: ChartSearchParams): Promise<ActionResu
 
   const parsed = searchSchema.safeParse(input);
   if (!parsed.success) return fail("VALIDATION_ERROR", "検索条件が不正です。");
-  const { query, difficulty, constantMin, constantMax, sort } = parsed.data;
+  const { query, difficulty, sort, range } = parsed.data;
+  let { constantMin, constantMax } = parsed.data;
+  if (range?.type === "chart_constant") {
+    constantMin = Math.max(constantMin ?? range.min, range.min);
+    constantMax = Math.min(constantMax ?? range.max, range.max);
+  }
 
   try {
     const supabase = await createClient();
@@ -54,6 +61,7 @@ export async function searchCharts(input: ChartSearchParams): Promise<ActionResu
     if (difficulty !== "") builder = builder.eq("difficulty_type", difficulty);
     if (constantMin !== null) builder = builder.gte("chart_constant", constantMin);
     if (constantMax !== null) builder = builder.lte("chart_constant", constantMax);
+    if (range?.type === "level") builder = builder.in("level", levelsInRange(range));
 
     const { data, error } = await builder
       .order("chart_constant", { ascending: sort === "constant_asc" })

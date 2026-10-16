@@ -1,7 +1,9 @@
 import { createAdminClient } from "@/lib/supabase/admin";
+import { isBadgeChapter, type BadgeChapter } from "@/lib/course-badge";
 import { createClient } from "@/lib/supabase/server";
 import { computeRanking, type RankingEntry, type RankingSubmission } from "@/lib/competition/ranking";
 import { getCompetitionStatus, type CompetitionStatus } from "@/lib/competition/period";
+import { fetchValidSubmissions } from "@/lib/score-submission/queries";
 
 export type RatingClassOption = { id: number; label: string; tier: string; sortOrder: number };
 
@@ -11,7 +13,7 @@ export type UserSummary = {
   displayName: string;
   iconUrl: string | null;
   rating: { label: string; tier: string } | null;
-  badge: { svgUrl: string; courseName: string } | null;
+  badge: { badgeChapter: BadgeChapter; courseName: string } | null;
 };
 
 export type TargetChart = {
@@ -76,7 +78,7 @@ type TargetRow = {
   order_index: number;
   charts: ChartRow | ChartRow[] | null;
 };
-type BadgeRow = { id: string; svg_asset_url: string; courses: { course_name: string } | null };
+type BadgeRow = { id: string; badge_chapter: string; courses: { course_name: string } | null };
 
 function first<T>(value: T | T[] | null): T | null {
   return Array.isArray(value) ? (value[0] ?? null) : value;
@@ -103,7 +105,7 @@ function toTargetCharts(rows: TargetRow[]): TargetChart[] {
     .sort((a, b) => a.orderIndex - b.orderIndex);
 }
 
-async function fetchUserSummaries(userIds: string[]): Promise<Map<string, UserSummary>> {
+export async function fetchUserSummaries(userIds: string[]): Promise<Map<string, UserSummary>> {
   if (userIds.length === 0) return new Map();
   const supabase = await createClient();
   const { data, error } = await supabase.from("users").select(USER_SUMMARY_SELECT).in("id", [...new Set(userIds)]);
@@ -118,7 +120,7 @@ async function fetchUserSummaries(userIds: string[]): Promise<Map<string, UserSu
     badgeIds.length > 0
       ? supabase
           .from("course_badges")
-          .select("id, svg_asset_url, courses!course_badges_course_id_fkey(course_name)")
+          .select("id, badge_chapter, courses!course_badges_course_id_fkey(course_name)")
           .in("id", badgeIds)
       : Promise.resolve({ data: [], error: null }),
   ]);
@@ -129,7 +131,10 @@ async function fetchUserSummaries(userIds: string[]): Promise<Map<string, UserSu
   const badgeById = new Map(
     (badges.data as unknown as BadgeRow[]).map((row) => [
       row.id,
-      { svgUrl: row.svg_asset_url, courseName: row.courses?.course_name ?? "" },
+      {
+        badgeChapter: isBadgeChapter(row.badge_chapter) ? row.badge_chapter : ("1" as BadgeChapter),
+        courseName: row.courses?.course_name ?? "",
+      },
     ]),
   );
 
@@ -323,40 +328,11 @@ export async function getParticipantSubmissions(
   if (participantError) throw new Error(`failed to fetch participants: ${participantError.message}`);
   if (participants.length === 0) return [];
 
-  const { data: submissions, error } = await admin
-    .from("score_submissions")
-    .select("id, submitter_id, submitted_at")
-    .eq("context_type", "competition")
-    .eq("context_id", competitionId)
-    .eq("validation_status", "valid")
-    .in(
-      "submitter_id",
-      participants.map((row) => row.user_id),
-    );
-  if (error) throw new Error(`failed to fetch submissions: ${error.message}`);
-  if (submissions.length === 0) return [];
-
-  const { data: songs, error: songError } = await admin
-    .from("song_scores")
-    .select("submission_id, chart_id, technical_score, play_date_time")
-    .in(
-      "submission_id",
-      submissions.map((row) => row.id),
-    );
-  if (songError) throw new Error(`failed to fetch song scores: ${songError.message}`);
-
-  return submissions.map((submission) => ({
-    id: submission.id,
-    userId: submission.submitter_id,
-    submittedAt: submission.submitted_at,
-    songs: songs
-      .filter((song) => song.submission_id === submission.id && song.chart_id !== null)
-      .map((song) => ({
-        chartId: song.chart_id as string,
-        technicalScore: song.technical_score,
-        playDateTime: song.play_date_time,
-      })),
-  }));
+  return fetchValidSubmissions({
+    contextType: "competition",
+    contextId: competitionId,
+    userIds: participants.map((row) => row.user_id),
+  });
 }
 
 /** 大会ランキング（スコア降順、同点は到達日時の早い順）。 */

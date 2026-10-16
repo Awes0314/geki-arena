@@ -3,13 +3,14 @@ import Link from "next/link";
 import { Avatar, type AvatarSize } from "@/components/ui/Avatar";
 import { CourseBadge } from "@/components/user/CourseBadge";
 import { RatingBadge } from "@/components/user/RatingBadge";
+import type { BadgeChapter } from "@/lib/course-badge";
 
 type UserDisplayProps = {
   userNo: number;
   displayName: string;
   iconUrl: string | null;
   rating?: { label: string; tier: string } | null;
-  badge?: { svgUrl: string; courseName: string } | null;
+  badge?: { badgeChapter: BadgeChapter; courseName: string } | null;
   size?: AvatarSize;
   /** trueでプロフィールへのリンクにする */
   linked?: boolean;
@@ -30,7 +31,7 @@ export function UserDisplay({
       <Avatar src={iconUrl} name={displayName} size={size} />
       <span className="truncate font-medium underline underline-offset-2">{displayName}</span>
       {rating && <RatingBadge label={rating.label} tier={rating.tier} />}
-      {badge && <CourseBadge svgUrl={badge.svgUrl} courseName={badge.courseName} size={24} />}
+      {badge && <CourseBadge badgeChapter={badge.badgeChapter} courseName={badge.courseName} size={24} />}
     </>
   );
 

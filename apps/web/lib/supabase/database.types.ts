@@ -1,4 +1,4 @@
-﻿export type Json =
+export type Json =
   | string
   | number
   | boolean
@@ -266,18 +266,18 @@ export type Database = {
       course_badges: {
         Row: {
           course_id: string
+          badge_chapter: string
           id: string
-          svg_asset_url: string
         }
         Insert: {
+          badge_chapter: string
           course_id: string
           id?: string
-          svg_asset_url: string
         }
         Update: {
+          badge_chapter?: string
           course_id?: string
           id?: string
-          svg_asset_url?: string
         }
         Relationships: [
           {

@@ -1,4 +1,4 @@
-﻿-- 開発用の仮データ（Supabase SQL Editorで手動実行。本番では実行しないこと）
+-- 開発用の仮データ（Supabase SQL Editorで手動実行。本番では実行しないこと）
 -- ログイン: userId = dev_alice / dev_bob / dev_carol、パスワード = password123
 -- 内部メールは {userId}@dev.geki-arena.internal（SUPABASE_AUTH_INTERNAL_EMAIL_DOMAIN と一致させる）
 
@@ -48,7 +48,7 @@ insert into public.users (
    '停止状態のログイン拒否確認用。', '[]', null, 'general', 'suspended', 'dummy-hash')
 on conflict (id) do nothing;
 
--- コース・バッジ・クリア結果（バッジ選択UIの確認用。SVGは仮のdata URL）
+-- コース・バッジ・クリア結果（バッジ選択UIの確認用）
 -- courses.reward_badge_id と course_badges.course_id は相互参照のため、同一トランザクションで投入する
 begin;
   insert into public.courses (id, chapter_number, course_name, clear_condition, reward_badge_id) values
@@ -56,11 +56,9 @@ begin;
     ('cccccccc-cccc-4ccc-8ccc-cccccccccccc', 1, 'ステップアップコース', '{}', 'dddddddd-dddd-4ddd-8ddd-dddddddddddd')
   on conflict (id) do nothing;
 
-  insert into public.course_badges (id, course_id, svg_asset_url) values
-    ('bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb', 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa',
-     'data:image/svg+xml;utf8,%3Csvg xmlns=''http://www.w3.org/2000/svg'' viewBox=''0 0 48 48''%3E%3Ccircle cx=''24'' cy=''24'' r=''22'' fill=''%23f59e0b''/%3E%3C/svg%3E'),
-    ('dddddddd-dddd-4ddd-8ddd-dddddddddddd', 'cccccccc-cccc-4ccc-8ccc-cccccccccccc',
-     'data:image/svg+xml;utf8,%3Csvg xmlns=''http://www.w3.org/2000/svg'' viewBox=''0 0 48 48''%3E%3Crect x=''4'' y=''4'' width=''40'' height=''40'' rx=''8'' fill=''%2314b8a6''/%3E%3C/svg%3E')
+  insert into public.course_badges (id, course_id, badge_chapter) values
+    ('bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb', 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa', '1'),
+    ('dddddddd-dddd-4ddd-8ddd-dddddddddddd', 'cccccccc-cccc-4ccc-8ccc-cccccccccccc', 'alpha')
   on conflict (id) do nothing;
 commit;
 

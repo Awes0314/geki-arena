@@ -1,12 +1,13 @@
 "use client";
 
-import { useActionState, type ReactNode } from "react";
+import { useActionState } from "react";
 
 import { ChartPicker } from "@/components/competition/ChartPicker";
 import { DateTimeField } from "@/components/competition/DateTimeField";
 import { Alert } from "@/components/ui/Alert";
 import { CheckboxCard } from "@/components/ui/CheckboxCard";
 import { TextArea, TextInput } from "@/components/ui/Fields";
+import { FormSection as Section } from "@/components/ui/FormSection";
 import { SubmitButton } from "@/components/ui/SubmitButton";
 import { RatingSelect } from "@/components/user/RatingSelect";
 import { createCompetition } from "@/lib/competition/actions";
@@ -15,15 +16,6 @@ import {
   COMPETITION_DESCRIPTION_MAX_LENGTH,
   COMPETITION_NAME_MAX_LENGTH,
 } from "@/lib/validation/competition";
-
-function Section({ title, children }: { title: string; children: ReactNode }) {
-  return (
-    <section className="flex flex-col gap-4 rounded-lg border border-border p-4">
-      <h2 className="text-sm font-semibold">{title}</h2>
-      {children}
-    </section>
-  );
-}
 
 type CompetitionFormProps = {
   ratingClasses: RatingClassOption[];

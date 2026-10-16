@@ -10,7 +10,7 @@ import { PageContainer, PageHeader } from "@/components/layout/PageContainer";
 import { Alert } from "@/components/ui/Alert";
 import { buttonStyles } from "@/components/ui/Button";
 import { Card, CardTitle } from "@/components/ui/Card";
-import { RatingBadge } from "@/components/user/RatingBadge";
+import { RatingRangeText } from "@/components/user/RatingRangeText";
 import { requireUser } from "@/lib/auth/current-user";
 import { joinCompetition, leaveCompetition } from "@/lib/competition/actions";
 import { checkParticipationCondition } from "@/lib/competition/participation";
@@ -29,15 +29,7 @@ import { getProfileByUserNo } from "@/lib/profile/queries";
 export const metadata: Metadata = { title: "大会詳細" };
 
 function ConditionText({ competition }: { competition: CompetitionDetail }) {
-  const { ratingMin, ratingMax } = competition;
-  if (!ratingMin && !ratingMax) return <span>制限なし</span>;
-  return (
-    <span className="inline-flex flex-wrap items-center gap-2">
-      {ratingMin ? <RatingBadge label={ratingMin.label} tier={ratingMin.tier} /> : "指定なし"}
-      <span>〜</span>
-      {ratingMax ? <RatingBadge label={ratingMax.label} tier={ratingMax.tier} /> : "指定なし"}
-    </span>
-  );
+  return <RatingRangeText min={competition.ratingMin} max={competition.ratingMax} />;
 }
 
 async function CompetitionContent({ params }: { params: Promise<{ id: string }> }) {

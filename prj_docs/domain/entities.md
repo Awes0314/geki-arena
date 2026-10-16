@@ -275,7 +275,7 @@
 ### 属性
 - badgeId
 - course: Courseへの参照
-- svgAsset: エンブレムSVG
+- BadgeChapter: コースチャプター（`1`〜`9`: 難易度順の通常チャプター / `alpha`・`beta`・`gamma`: 特殊条件コース用の特殊チャプター）。見た目（六角形＋チャプター文字）はアプリ側で描画する
 
 ### 出典
 - `course.md`

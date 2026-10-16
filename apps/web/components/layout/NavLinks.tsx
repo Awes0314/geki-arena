@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 
 import type { NavItem } from "@/lib/navigation";
+import { MODE_TONE_CLASS } from "@/lib/mode-tone";
 
 type NavLinksProps = {
   items: NavItem[];
@@ -22,7 +23,7 @@ export function NavLinks({ items, variant }: NavLinksProps) {
           variant === "bottom"
             ? "flex min-h-14 flex-1 items-center justify-center text-xs font-medium"
             : "inline-flex min-h-11 items-center rounded-lg px-3 text-sm font-medium hover:bg-foreground/5";
-        const color = item.tone === "competition" ? "text-mode-competition" : active ? "text-accent" : "text-foreground";
+        const color = item.tone ? MODE_TONE_CLASS[item.tone].text : active ? "text-accent" : "text-foreground";
         return (
           <li key={item.href} className={variant === "bottom" ? "flex-1" : undefined}>
             <Link

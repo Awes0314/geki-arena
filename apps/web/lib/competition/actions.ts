@@ -6,7 +6,7 @@ import { redirect } from "next/navigation";
 import { fail, failInternal, formDataToValues, ok, type FormState } from "@/lib/actions/result";
 import { getCurrentUser, type CurrentUser } from "@/lib/auth/current-user";
 import { getCompetitionStatus, type CompetitionStatus } from "@/lib/competition/period";
-import { checkParticipationCondition } from "@/lib/competition/participation";
+import { checkUserRatingCondition, validateRatingRange } from "@/lib/competition/rating-condition";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
 import { competitionDescriptionSchema, parseCompetitionForm } from "@/lib/validation/competition";
@@ -91,20 +91,12 @@ export async function createCompetition(_prevState: FormState, formData: FormDat
   try {
     const admin = createAdminClient();
 
-    const ratingIds = [input.ratingMinId, input.ratingMaxId].filter((id): id is number => id !== null);
-    if (ratingIds.length > 0) {
-      const { data: ratings, error } = await admin.from("rating_classes").select("id, sort_order").in("id", ratingIds);
-      if (error) throw new Error(`failed to fetch rating classes: ${error.message}`);
-      const orderOf = (id: number | null) => ratings.find((rating) => rating.id === id)?.sort_order ?? null;
-      if (ratings.length !== new Set(ratingIds).size) {
-        return validationFail({ ratingMinId: "存在しないRating区分です" });
-      }
-      const min = orderOf(input.ratingMinId);
-      const max = orderOf(input.ratingMaxId);
-      if (min !== null && max !== null && min > max) {
-        return validationFail({ ratingMaxId: "上限は下限以上のRating区分を指定してください" });
-      }
-    }
+    const ratingErrors = await validateRatingRange({ minId: input.ratingMinId, maxId: input.ratingMaxId });
+    if (ratingErrors) return validationFail(ratingErrors);
+
+    // 主催者自身も参加条件を満たすこと（Rating区分未設定は不可）
+    const ownCondition = await checkUserRatingCondition(user.id, { minId: input.ratingMinId, maxId: input.ratingMaxId });
+    if (!ownCondition.ok) return validationFail({ ratingMinId: ownCondition.reason });
 
     const { data: charts, error: chartError } = await admin
       .from("charts")
@@ -166,31 +158,6 @@ export async function createCompetition(_prevState: FormState, formData: FormDat
   redirect(`/competitions/${competitionId}`);
 }
 
-/** ユーザーのRating区分が大会の参加条件を満たすか確認する。 */
-async function checkUserAgainstCondition(user: CurrentUser, competition: CompetitionRow) {
-  const admin = createAdminClient();
-  const { data: profile, error } = await admin.from("users").select("rating_class_id").eq("id", user.id).single();
-  if (error) throw new Error(`failed to fetch user rating: ${error.message}`);
-
-  const ids = [
-    profile.rating_class_id,
-    competition.participation_rating_min_id,
-    competition.participation_rating_max_id,
-  ].filter((id): id is number => id !== null);
-  const { data: ratings, error: ratingError } =
-    ids.length > 0
-      ? await admin.from("rating_classes").select("id, sort_order").in("id", ids)
-      : { data: [], error: null };
-  if (ratingError) throw new Error(`failed to fetch rating classes: ${ratingError.message}`);
-
-  const orderOf = (id: number | null) =>
-    id === null ? null : (ratings.find((rating) => rating.id === id)?.sort_order ?? null);
-  return checkParticipationCondition(orderOf(profile.rating_class_id), {
-    min: orderOf(competition.participation_rating_min_id),
-    max: orderOf(competition.participation_rating_max_id),
-  });
-}
-
 /** 大会に参加する。終了前の大会で、参加条件を満たし、取消されていない場合のみ可能。 */
 export async function joinCompetition(_prevState: FormState, formData: FormData): Promise<FormState> {
   const values = formDataToValues(formData);
@@ -218,7 +185,10 @@ export async function joinCompetition(_prevState: FormState, formData: FormData)
       return { result: fail("CONFLICT", "すでに参加しています"), values };
     }
 
-    const condition = await checkUserAgainstCondition(user, loaded.competition);
+    const condition = await checkUserRatingCondition(user.id, {
+      minId: loaded.competition.participation_rating_min_id,
+      maxId: loaded.competition.participation_rating_max_id,
+    });
     if (!condition.ok) return { result: fail("FORBIDDEN", condition.reason), values };
 
     if (existing) {

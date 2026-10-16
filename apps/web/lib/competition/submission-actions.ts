@@ -20,6 +20,8 @@ import {
   type Period,
 } from "@/lib/competition/selection";
 import { matchPlaysToCharts } from "@/lib/score-submission/chart-candidates";
+import { isDuplicatePlay } from "@/lib/score-submission/duplicates";
+import { insertScoreSubmission } from "@/lib/score-submission/persist";
 import { parseBookmarkletPayload } from "@/lib/score-submission/schema";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
@@ -200,16 +202,7 @@ export async function submitCompetitionScores(
 
     // 提出者・譜面・プレイ日時・テクニカルスコアが同一のプレイは重複とみなす
     const existing = await getParticipantSubmissions(competitionId, user.id);
-    const isDuplicate = (entry: MatchedPlay) =>
-      existing.some((submission) =>
-        submission.songs.some(
-          (song) =>
-            song.chartId === entry.chartId &&
-            song.technicalScore === entry.play.technicalScore &&
-            song.playDateTime !== undefined &&
-            new Date(song.playDateTime).getTime() === new Date(entry.play.playDateTime).getTime(),
-        ),
-      );
+    const isDuplicate = (entry: MatchedPlay) => isDuplicatePlay(existing, entry);
     const fresh = competition.continuousPlayRequired
       ? chosen.plays.every(isDuplicate)
         ? []
@@ -219,11 +212,10 @@ export async function submitCompetitionScores(
 
     const submissionId = crypto.randomUUID();
     const submittedAt = new Date().toISOString();
-    const songs = fresh.map((entry, index) => ({
+    const songs = fresh.map((entry) => ({
       chartId: entry.chartId as string,
       technicalScore: entry.play.technicalScore,
       playDateTime: entry.play.playDateTime,
-      index,
       jacketImageUrl: entry.play.jacketImageUrl,
     }));
     const totalScore = songs.reduce((sum, song) => sum + song.technicalScore, 0);
@@ -244,32 +236,15 @@ export async function submitCompetitionScores(
     const improved = !before || (after !== null && after.totalScore > before.totalScore);
 
     const admin = createAdminClient();
-    const { error: submissionError } = await admin.from("score_submissions").insert({
+    await insertScoreSubmission({
       id: submissionId,
-      submitter_id: user.id,
-      context_type: "competition",
-      context_id: competitionId,
-      submitted_at: submittedAt,
-      total_score: totalScore,
-      validation_status: "valid",
-      update_applied: improved,
+      submitterId: user.id,
+      contextType: "competition",
+      contextId: competitionId,
+      submittedAt,
+      songs,
+      updateApplied: improved,
     });
-    if (submissionError) throw new Error(`failed to insert submission: ${submissionError.message}`);
-
-    const { error: songError } = await admin.from("song_scores").insert(
-      songs.map((song) => ({
-        submission_id: submissionId,
-        order_index: song.index,
-        chart_id: song.chartId,
-        play_date_time: song.playDateTime,
-        technical_score: song.technicalScore,
-        jacket_image_url: song.jacketImageUrl,
-      })),
-    );
-    if (songError) {
-      await admin.from("score_submissions").delete().eq("id", submissionId);
-      throw new Error(`failed to insert song scores: ${songError.message}`);
-    }
 
     if (improved && after) {
       const { error } = await admin
