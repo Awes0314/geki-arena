@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState, useTransition } from "react";
+import { useEffect, useRef, useState, useTransition, type ReactNode } from "react";
 
 import { Alert } from "@/components/ui/Alert";
 import { ChartDisplay } from "@/components/chart/ChartDisplay";
@@ -38,6 +38,10 @@ type ChartPickerProps = {
   /** 選択できない譜面（候補から非表示にする） */
   excludedChartIds?: string[];
   rules?: string[];
+  /** 編集時の初期選択 */
+  initialSelected?: ChartSearchResult[];
+  /** 選択済み各行に追加する項目（クリア条件の入力など） */
+  renderExtra?: (chart: ChartSearchResult, index: number) => ReactNode;
 };
 
 const DEFAULT_RULES = [
@@ -54,8 +58,10 @@ export function ChartPicker({
   range,
   excludedChartIds = [],
   rules = DEFAULT_RULES,
+  initialSelected = [],
+  renderExtra,
 }: ChartPickerProps) {
-  const [selected, setSelected] = useState<ChartSearchResult[]>([]);
+  const [selected, setSelected] = useState<ChartSearchResult[]>(initialSelected);
   const [results, setResults] = useState<ChartSearchResult[] | null>(null);
   const [searchError, setSearchError] = useState<string | null>(null);
   const [query, setQuery] = useState("");
@@ -133,7 +139,7 @@ export function ChartPicker({
         ) : (
           <ol className="flex flex-col divide-y divide-border rounded-lg border border-border">
             {selected.map((chart, index) => (
-              <li key={chart.chartId} className="flex items-center gap-2 px-3 py-2 text-sm">
+              <li key={chart.chartId} className="flex flex-wrap items-center gap-2 px-3 py-2 text-sm">
                 <span className="w-6 shrink-0 text-muted">{index + 1}.</span>
                 <span className="flex-1">
                   <ChartDisplay
@@ -165,6 +171,7 @@ export function ChartPicker({
                 >
                   ✕
                 </Button>
+                {renderExtra && <div className="w-full pl-8">{renderExtra(chart, index)}</div>}
               </li>
             ))}
           </ol>

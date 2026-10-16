@@ -48,5 +48,7 @@ export function fail(
 /** 想定外エラーはログにのみ詳細を残し、ユーザーには一般化したメッセージを返す。 */
 export function failInternal(context: string, cause: unknown): ActionResult<never> {
   console.error(`[${context}]`, cause instanceof Error ? cause.message : cause);
+  // server-onlyモジュールをクライアントバンドルに含めないため動的importとする
+  void import("@/lib/logging/activity-log").then((m) => m.recordError(context, cause)).catch(() => undefined);
   return fail("INTERNAL_ERROR", "処理に失敗しました。時間をおいて再度お試しください。");
 }

@@ -39,6 +39,41 @@ export type Database = {
   }
   public: {
     Tables: {
+      activity_logs: {
+        Row: {
+          created_at: string
+          detail: Json
+          event_type: string
+          id: string
+          level: string
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          detail?: Json
+          event_type: string
+          id?: string
+          level?: string
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          detail?: Json
+          event_type?: string
+          id?: string
+          level?: string
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "activity_logs_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       charts: {
         Row: {
           chart_constant: number
@@ -373,7 +408,7 @@ export type Database = {
       }
       courses: {
         Row: {
-          chapter_number: number
+          chapter: string
           clear_condition: Json
           course_name: string
           created_at: string
@@ -382,7 +417,7 @@ export type Database = {
           updated_at: string
         }
         Insert: {
-          chapter_number: number
+          chapter: string
           clear_condition: Json
           course_name: string
           created_at?: string
@@ -391,7 +426,7 @@ export type Database = {
           updated_at?: string
         }
         Update: {
-          chapter_number?: number
+          chapter?: string
           clear_condition?: Json
           course_name?: string
           created_at?: string
@@ -951,6 +986,28 @@ export type Database = {
       }
     }
     Functions: {
+      admin_create_course: {
+        Args: {
+          p_badge_chapter: string
+          p_chapter: string
+          p_chart_ids: string[]
+          p_clear_condition: Json
+          p_course_name: string
+        }
+        Returns: string
+      }
+      admin_delete_course: { Args: { p_course_id: string }; Returns: undefined }
+      admin_update_course: {
+        Args: {
+          p_badge_chapter: string
+          p_chapter: string
+          p_chart_ids: string[]
+          p_clear_condition: Json
+          p_course_id: string
+          p_course_name: string
+        }
+        Returns: undefined
+      }
       is_admin: { Args: never; Returns: boolean }
     }
     Enums: {

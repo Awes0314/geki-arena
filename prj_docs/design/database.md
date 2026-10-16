@@ -149,9 +149,9 @@
 | カラム | 型 | 制約 | 説明 |
 |---|---|---|---|
 | id | uuid | PK DEFAULT gen_random_uuid() | |
-| chapter_number | smallint | NOT NULL | |
+| chapter | text | NOT NULL, CHECK (先頭ゼロなしの1〜2桁の数字、または数字以外の1文字) | チャプター（例: `1`, `12`, `α`）。数字は数値順、記号はその後ろに文字コード順で並べる |
 | course_name | text | NOT NULL | |
-| clear_condition | jsonb | NOT NULL | コースごとに運営が設定する合格条件（構造は実装時に確定） |
+| clear_condition | jsonb | NOT NULL | コースごとに運営が設定する合格条件。`{"perChart": ConditionMetrics[], "total": ConditionMetrics}`（perChartは譜面順。ConditionMetricsは`minScore`（テクニカルスコア以上）と、`maxBreakOrBelow`（BREAK+HIT+MISS以下）・`maxHitOrBelow`（HIT+MISS以下）・`maxMiss`・`maxBellMissed`（最大BELL数−取得BELL数以下）・`maxDamage`の各上限個数。未設定はnull。設定した項目をすべて満たすと合格。旧形式`{"minScores", "minTotalScore"}`も読み取り可） |
 | reward_badge_id | uuid | FK -> course_badges(id) NOT NULL | |
 | created_at | timestamptz | NOT NULL DEFAULT now() | |
 | updated_at | timestamptz | NOT NULL DEFAULT now() | |
@@ -224,6 +224,18 @@
 | target_id | uuid | NOT NULL | 操作対象のID |
 | detail | jsonb | NOT NULL DEFAULT '{}' | 詳細情報 |
 | created_at | timestamptz | NOT NULL DEFAULT now() | |
+
+### public.activity_logs（ActivityLog）
+| カラム | 型 | 制約 | 説明 |
+|---|---|---|---|
+| id | uuid | PK DEFAULT gen_random_uuid() | |
+| user_id | uuid | FK -> users(id) ON DELETE SET NULL, NULL可 | 行動主体（未ログインの失敗ログ等はNULL） |
+| event_type | text | NOT NULL, CHECK IN ('login','login_failed','logout','register','competition_create','one_v_one_create','score_submit','score_submit_rejected','error') | イベント種別 |
+| level | text | NOT NULL DEFAULT 'info', CHECK IN ('info','error') | |
+| detail | jsonb | NOT NULL DEFAULT '{}' | 詳細（個人情報・認証情報は含めない） |
+| created_at | timestamptz | NOT NULL DEFAULT now() | |
+
+- 書き込みはService Roleのみ、参照は`role = admin`のみ（RLS）。削除機能は設けず無期限保持する。
 
 ## Columns
 - 各テーブルのカラム定義は、上記「Tables」内の表に統合して記載する（テーブルごとにカラム名・型・制約・説明を一覧化しているため、本節では独立したカラム一覧は設けない）。

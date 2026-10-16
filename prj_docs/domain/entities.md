@@ -236,10 +236,10 @@
 ## Course（コース）
 ### 属性
 - courseId
-- chapterNumber: CHAPTER番号（難易度の目安、値が大きいほど高難易度）
+- chapter: チャプター（1〜2桁の数字は難易度の目安で値が大きいほど高難易度。数字以外の1文字（α等）も可）
 - courseName
-- orderedCharts: Chartへの参照リスト（表示順を持つ。連続プレイが前提だがプレイ順は問わない）
-- clearCondition: コースごとに運営が個別設定する合格条件（例: 各譜面のスコア閾値等）
+- orderedCharts: Chartへの参照リスト（1〜10件、重複不可。表示順を持つ。連続プレイが前提だがプレイ順は問わない）
+- clearCondition: コースごとに運営が個別設定する合格条件（曲個別・通しで、スコア以上と、BREAK以下・HIT以下・MISS・BELL取りこぼし・DAMAGEの個数上限。いずれも任意で、設定した条件をすべて満たすと合格）
 - rewardBadge: CourseBadgeへの参照
 
 ### 識別子
