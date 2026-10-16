@@ -6,6 +6,8 @@ import { Alert } from "@/components/ui/Alert";
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
 import { CompetitionSubmitPanel } from "./CompetitionSubmitPanel";
+import { MatchSubmitPanel } from "./MatchSubmitPanel";
+import { SelectInput } from "@/components/ui/Fields";
 import { resolvePlayLevels, type PlayLevels } from "@/lib/score-submission/actions";
 import {
   ONGEKI_NET_ORIGIN,
@@ -23,6 +25,7 @@ const MODE_LABELS = { tournament: "大会・1v1", course: "コース" } as const
 /** ブックマークレットからpostMessageで送られたスコアを受信し、提出内容を表示する。 */
 export function ScoreReceiver() {
   const [state, setState] = useState<ReceiveState>({ status: "waiting" });
+  const [target, setTarget] = useState<"competition" | "one_v_one">("competition");
 
   useEffect(() => {
     function onMessage(event: MessageEvent) {
@@ -81,7 +84,21 @@ export function ScoreReceiver() {
         )}
       </Card>
       {payload.mode === "tournament" ? (
-        <CompetitionSubmitPanel payload={payload} />
+        <>
+          <SelectInput
+            label="提出先の種別"
+            value={target}
+            onChange={(event) => setTarget(event.target.value === "one_v_one" ? "one_v_one" : "competition")}
+          >
+            <option value="competition">大会</option>
+            <option value="one_v_one">1v1</option>
+          </SelectInput>
+          {target === "competition" ? (
+            <CompetitionSubmitPanel payload={payload} />
+          ) : (
+            <MatchSubmitPanel payload={payload} />
+          )}
+        </>
       ) : (
         <>
           <Alert variant="info">コースへの提出は未実装です。</Alert>
