@@ -22,7 +22,7 @@
 ## CSRF / XSS
 - Server Actionは、Next.jsの仕組みによりCSRF対策（Originチェック）が組み込まれている前提で利用する。
 - Route Handlerを独自に設ける場合は、Origin/Refererの検証を行う。
-- ユーザー入力（自己紹介、大会説明等）を画面に表示する箇所は、Reactの標準的なエスケープに任せ、`dangerouslySetInnerHTML`等の使用は避ける。SVGアセット（コースバッジ）は運営が管理するアセットのみを許可し、ユーザー入力由来のSVGを直接レンダリングしない。
+- ユーザー入力（自己紹介、大会説明等）を画面に表示する箇所は、Reactの標準的なエスケープに任せ、`dangerouslySetInnerHTML`等の使用は避ける。コースバッジはクラス値（列挙）からアプリ側で描画し、ユーザー入力由来のSVGは扱わない。
 
 ## Database Security
 - RLSをすべてのテーブルで有効化し、Service Roleキーはサーバー側（Route Handler / Server Action / 運営機能）でのみ使用し、クライアントに露出させない。
