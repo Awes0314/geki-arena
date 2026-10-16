@@ -10,6 +10,7 @@
   --accent-foreground: #ffffff;
   --mode-competition: #dc2626;
   --mode-one-v-one: #16a34a;
+  --mode-course: #2563eb;
   --neon-from: #22d3ee;
   --neon-to: #f472b6;
 }
@@ -24,6 +25,7 @@
   --color-accent-foreground: var(--accent-foreground);
   --color-mode-competition: var(--mode-competition);
   --color-mode-one-v-one: var(--mode-one-v-one);
+  --color-mode-course: var(--mode-course);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
 }
@@ -39,6 +41,7 @@
     --accent-foreground: #0a0a0a;
     --mode-competition: #f87171;
     --mode-one-v-one: #4ade80;
+    --mode-course: #60a5fa;
   }
 }
 

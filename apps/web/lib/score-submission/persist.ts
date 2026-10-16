@@ -8,6 +8,16 @@ export type NewSongScore = {
   technicalScore: number;
   playDateTime: string;
   jacketImageUrl: string | null;
+  /** プレイ履歴詳細から取得した値（一覧のみの提出ではundefined） */
+  detail?: {
+    maxCombo: number;
+    criticalBreak: number;
+    break: number;
+    hit: number;
+    miss: number;
+    bell: { obtained: number; total: number };
+    damage: number;
+  };
 };
 
 /** 提出と曲ごとのスコアを保存する。曲の保存に失敗した場合は提出を取り消す。 */
@@ -41,6 +51,13 @@ export async function insertScoreSubmission(params: {
       play_date_time: song.playDateTime,
       technical_score: song.technicalScore,
       jacket_image_url: song.jacketImageUrl,
+      max_combo: song.detail?.maxCombo ?? null,
+      critical_break: song.detail?.criticalBreak ?? null,
+      break_count: song.detail?.break ?? null,
+      hit_count: song.detail?.hit ?? null,
+      miss_count: song.detail?.miss ?? null,
+      bell_count: song.detail ? `${song.detail.bell.obtained}/${song.detail.bell.total}` : null,
+      damage_count: song.detail?.damage ?? null,
     })),
   );
   if (songError) {

@@ -26,6 +26,7 @@ const COLOR_TOKENS = [
   { name: "accent-foreground", variable: "--accent-foreground" },
   { name: "mode-competition (大会)", variable: "--mode-competition" },
   { name: "mode-one-v-one (1v1)", variable: "--mode-one-v-one" },
+  { name: "mode-course (コース)", variable: "--mode-course" },
   { name: "neon-from", variable: "--neon-from" },
   { name: "neon-to", variable: "--neon-to" },
 ] as const;
