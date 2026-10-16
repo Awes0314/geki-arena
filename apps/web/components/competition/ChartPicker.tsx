@@ -9,6 +9,7 @@ import { SelectInput, TextInput } from "@/components/ui/Fields";
 import { DIFFICULTY_TYPES } from "@/lib/admin/pongeki-mapping";
 import { searchCharts, type ChartSearchResult } from "@/lib/competition/chart-search";
 import { CHART_SEARCH_SORT_LABELS, CHART_SEARCH_SORTS, type ChartSearchSort } from "@/lib/competition/chart-sort";
+import type { MusicRange } from "@/lib/one-v-one/music-range";
 import { MAX_TARGET_CHARTS, MIN_TARGET_CHARTS } from "@/lib/validation/competition";
 
 const DIFFICULTIES = DIFFICULTY_TYPES;
@@ -24,10 +25,36 @@ function parseConstant(value: string): number | null {
   return Number.isFinite(parsed) ? parsed : null;
 }
 
-type ChartPickerProps = { error?: string };
+type ChartPickerProps = {
+  error?: string;
+  /** 選択結果を送信する項目名（カンマ区切りの譜面ID） */
+  name?: string;
+  label?: string;
+  /** 選択できる譜面数。maxを1にすると単一選択（追加すると置き換え） */
+  min?: number;
+  max?: number;
+  /** 候補をこの範囲に制限する */
+  range?: MusicRange;
+  /** 選択できない譜面（候補から非表示にする） */
+  excludedChartIds?: string[];
+  rules?: string[];
+};
 
-/** 課題曲（1〜10曲、順序あり）を検索・絞り込みで選択する。選択結果はchartIds(カンマ区切り)として送信する。 */
-export function ChartPicker({ error }: ChartPickerProps) {
+const DEFAULT_RULES = [
+  `${MIN_TARGET_CHARTS}曲以上、${MAX_TARGET_CHARTS}曲以内`,
+  "同一譜面の重複指定は不可（同じ楽曲でも難易度・レベルが異なれば可）",
+];
+
+/** 譜面を検索・絞り込みで選択する（大会の課題曲、1v1の自選曲など）。選択結果はnameの隠し項目として送信する。 */
+export function ChartPicker({
+  error,
+  name = "chartIds",
+  label = "課題曲",
+  max = MAX_TARGET_CHARTS,
+  range,
+  excludedChartIds = [],
+  rules = DEFAULT_RULES,
+}: ChartPickerProps) {
   const [selected, setSelected] = useState<ChartSearchResult[]>([]);
   const [results, setResults] = useState<ChartSearchResult[] | null>(null);
   const [searchError, setSearchError] = useState<string | null>(null);
@@ -40,7 +67,12 @@ export function ChartPicker({ error }: ChartPickerProps) {
   const requestId = useRef(0);
 
   const selectedIds = new Set(selected.map((chart) => chart.chartId));
-  const full = selected.length >= MAX_TARGET_CHARTS;
+  const excluded = new Set(excludedChartIds);
+  const single = max === 1;
+  const full = !single && selected.length >= max;
+  const rangeType = range?.type;
+  const rangeMin = range?.min;
+  const rangeMax = range?.max;
 
   // 条件が変わるたびに自動で検索する（楽曲名の入力中は少し待つ）
   useEffect(() => {
@@ -54,6 +86,7 @@ export function ChartPicker({ error }: ChartPickerProps) {
             constantMin: parseConstant(constantMin),
             constantMax: parseConstant(constantMax),
             sort,
+            range: rangeType === undefined || rangeMin === undefined || rangeMax === undefined ? null : { type: rangeType, min: rangeMin, max: rangeMax },
           });
           if (id !== requestId.current) return;
           if (result.ok) {
@@ -67,7 +100,7 @@ export function ChartPicker({ error }: ChartPickerProps) {
       query === "" ? 0 : SEARCH_DEBOUNCE_MS,
     );
     return () => clearTimeout(timer);
-  }, [query, difficulty, constantMin, constantMax, sort]);
+  }, [query, difficulty, constantMin, constantMax, sort, rangeType, rangeMin, rangeMax]);
 
   function move(index: number, offset: number) {
     setSelected((current) => {
@@ -82,22 +115,21 @@ export function ChartPicker({ error }: ChartPickerProps) {
   return (
     <fieldset className="flex flex-col gap-4">
       <legend className="mb-1 text-sm font-medium">
-        課題曲<span aria-hidden="true" className="ml-1 text-red-600">*</span>
+        {label}<span aria-hidden="true" className="ml-1 text-red-600">*</span>
       </legend>
       <ul className="list-inside list-disc text-xs text-muted">
-        <li>
-          {MIN_TARGET_CHARTS}曲以上、{MAX_TARGET_CHARTS}曲以内
-        </li>
-        <li>同一譜面の重複指定は不可（同じ楽曲でも難易度・レベルが異なれば可）</li>
+        {rules.map((rule) => (
+          <li key={rule}>{rule}</li>
+        ))}
       </ul>
-      <input type="hidden" name="chartIds" value={selected.map((chart) => chart.chartId).join(",")} />
+      <input type="hidden" name={name} value={selected.map((chart) => chart.chartId).join(",")} />
 
       <div>
         <p className="mb-2 text-sm">
-          選択中: {selected.length} / {MAX_TARGET_CHARTS}曲（並び順は表示順です。提出時のプレイ順は問いません）
+          {single ? "選択中" : `選択中: ${selected.length} / ${max}曲（並び順は表示順です。提出時のプレイ順は問いません）`}
         </p>
         {selected.length === 0 ? (
-          <p className="text-sm text-muted">課題曲が選択されていません。</p>
+          <p className="text-sm text-muted">{label}が選択されていません。</p>
         ) : (
           <ol className="flex flex-col divide-y divide-border rounded-lg border border-border">
             {selected.map((chart, index) => (
@@ -111,17 +143,21 @@ export function ChartPicker({ error }: ChartPickerProps) {
                     chartConstant={chart.chartConstant}
                   />
                 </span>
-                <Button variant="ghost" aria-label={`${chart.title}を上へ`} disabled={index === 0} onClick={() => move(index, -1)}>
-                  ↑
-                </Button>
-                <Button
-                  variant="ghost"
-                  aria-label={`${chart.title}を下へ`}
-                  disabled={index === selected.length - 1}
-                  onClick={() => move(index, 1)}
-                >
-                  ↓
-                </Button>
+                {!single && (
+                  <>
+                    <Button variant="ghost" aria-label={`${chart.title}を上へ`} disabled={index === 0} onClick={() => move(index, -1)}>
+                      ↑
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      aria-label={`${chart.title}を下へ`}
+                      disabled={index === selected.length - 1}
+                      onClick={() => move(index, 1)}
+                    >
+                      ↓
+                    </Button>
+                  </>
+                )}
                 <Button
                   variant="ghost"
                   aria-label={`${chart.title}を削除`}
@@ -194,7 +230,7 @@ export function ChartPicker({ error }: ChartPickerProps) {
         {results && results.length === 0 && <p className="text-sm text-muted">該当する譜面がありません。</p>}
         {results && results.length > 0 && (
           <ul className="flex flex-col divide-y divide-border">
-            {results.map((chart) => {
+            {results.filter((chart) => !excluded.has(chart.chartId)).map((chart) => {
               const added = selectedIds.has(chart.chartId);
               return (
                 <li key={chart.chartId} className="flex items-center gap-2 py-2 text-sm">
@@ -209,9 +245,9 @@ export function ChartPicker({ error }: ChartPickerProps) {
                   <Button
                     variant="secondary"
                     disabled={added || full}
-                    onClick={() => setSelected((current) => [...current, chart])}
+                    onClick={() => setSelected((current) => (single ? [chart] : [...current, chart]))}
                   >
-                    {added ? "追加済み" : "追加"}
+                    {added ? (single ? "選択中" : "追加済み") : single ? "選択" : "追加"}
                   </Button>
                 </li>
               );

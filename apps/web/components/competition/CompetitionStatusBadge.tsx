@@ -1,3 +1,4 @@
+import { StatusBadge } from "@/components/ui/StatusBadge";
 import { STATUS_LABELS, type CompetitionStatus } from "@/lib/competition/period";
 
 const STATUS_CLASS: Record<CompetitionStatus, string> = {
@@ -7,9 +8,5 @@ const STATUS_CLASS: Record<CompetitionStatus, string> = {
 };
 
 export function CompetitionStatusBadge({ status }: { status: CompetitionStatus }) {
-  return (
-    <span className={`inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold ${STATUS_CLASS[status]}`}>
-      {STATUS_LABELS[status]}
-    </span>
-  );
+  return <StatusBadge label={STATUS_LABELS[status]} className={STATUS_CLASS[status]} />;
 }

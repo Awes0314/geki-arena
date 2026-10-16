@@ -1,8 +1,9 @@
+import { isBadgeChapter, type BadgeChapter } from "@/lib/course-badge";
 import { createClient } from "@/lib/supabase/server";
 import { parseSnsLinks, type SnsLink } from "@/lib/validation/profile";
 
 export type RatingClassData = { id: number; code: string; label: string; tier: string };
-export type CourseBadgeData = { id: string; svgUrl: string; courseName: string };
+export type CourseBadgeData = { id: string; badgeChapter: BadgeChapter; courseName: string };
 
 export type UserProfile = {
   id: string;
@@ -20,14 +21,18 @@ export type UserProfile = {
 
 type BadgeRow = {
   id: string;
-  svg_asset_url: string;
+  badge_chapter: string;
   courses: { course_name: string } | null;
 };
 
-const BADGE_SELECT = "id, svg_asset_url, courses!course_badges_course_id_fkey(course_name)";
+const BADGE_SELECT = "id, badge_chapter, courses!course_badges_course_id_fkey(course_name)";
 
 function toBadgeData(row: BadgeRow): CourseBadgeData {
-  return { id: row.id, svgUrl: row.svg_asset_url, courseName: row.courses?.course_name ?? "" };
+  return {
+    id: row.id,
+    badgeChapter: isBadgeChapter(row.badge_chapter) ? row.badge_chapter : "1",
+    courseName: row.courses?.course_name ?? "",
+  };
 }
 
 /** userNoでプロフィールを取得する。存在しない・削除済みの場合はnull。 */

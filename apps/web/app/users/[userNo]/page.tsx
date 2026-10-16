@@ -38,7 +38,7 @@ async function ProfileContent({ params }: { params: Promise<{ userNo: string }> 
           <div className="flex items-center gap-2">
             {profile.ratingClass && <RatingBadge label={profile.ratingClass.label} tier={profile.ratingClass.tier} />}
             {profile.displayedBadge && (
-              <CourseBadge svgUrl={profile.displayedBadge.svgUrl} courseName={profile.displayedBadge.courseName} />
+              <CourseBadge badgeChapter={profile.displayedBadge.badgeChapter} courseName={profile.displayedBadge.courseName} />
             )}
           </div>
         </div>

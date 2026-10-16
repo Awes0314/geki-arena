@@ -1,5 +1,7 @@
 import type { ReactNode } from "react";
 
+import { MODE_TONE_CLASS, type ModeTone } from "@/lib/mode-tone";
+
 /** ページ共通のコンテンツ幅・余白。モバイル下部ナビ分の余白を含む。 */
 export function PageContainer({ children, width = "md" }: { children: ReactNode; width?: "sm" | "md" }) {
   const maxWidth = width === "sm" ? "max-w-md" : "max-w-4xl";
@@ -13,14 +15,14 @@ export function PageHeader({
 }: {
   title: string;
   actions?: ReactNode;
-  /** 大会ページでは見出しに赤の差し色を付ける */
-  tone?: "competition";
+  /** 大会・1v1ページでは見出しにモードの差し色を付ける */
+  tone?: ModeTone;
 }) {
   return (
     <div className="mb-6 flex items-center justify-between gap-4">
       <div>
         <h1
-          className={`text-2xl font-bold tracking-tight ${tone === "competition" ? "border-l-4 border-mode-competition pl-3" : ""}`}
+          className={`text-2xl font-bold tracking-tight ${tone ? MODE_TONE_CLASS[tone].headingBorder : ""}`}
         >
           {title}
         </h1>

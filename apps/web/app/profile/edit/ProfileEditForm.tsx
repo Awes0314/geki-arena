@@ -120,7 +120,7 @@ export function ProfileEditForm({ profile, ratingClasses, badges, onboarding = f
                   value={badge.id}
                   defaultChecked={(values?.displayedBadgeId ?? profile.displayedBadgeId) === badge.id}
                 />
-                <CourseBadge svgUrl={badge.svgUrl} courseName={badge.courseName} size={32} />
+                <CourseBadge badgeChapter={badge.badgeChapter} courseName={badge.courseName} size={32} />
                 {badge.courseName}
               </label>
             ))}

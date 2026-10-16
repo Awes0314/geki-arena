@@ -1,4 +1,6 @@
-export type NavItem = { label: string; href: string; /** モードのイメージカラー（大会=赤） */ tone?: "competition" };
+import type { ModeTone } from "@/lib/mode-tone";
+
+export type NavItem = { label: string; href: string; /** モードのイメージカラー（大会=赤、1v1=緑） */ tone?: ModeTone };
 
 type NavUser = { userNo: number; role: "general" | "admin" | string };
 
@@ -14,6 +16,7 @@ type NavDefinition = {
 const NAV_DEFINITIONS: NavDefinition[] = [
   { label: "ホーム", href: () => "/" },
   { label: "大会", href: () => "/competitions", tone: "competition", visible: (user) => user !== null },
+  { label: "1v1", href: () => "/one-v-one", tone: "one-v-one", visible: (user) => user !== null },
   { label: "プロフィール", href: (user) => `/users/${user?.userNo}`, visible: (user) => user !== null },
   { label: "スコア提出", href: () => "/bookmarklet", visible: (user) => user !== null },
   { label: "運営", href: () => "/admin", visible: (user) => user?.role === "admin" },
